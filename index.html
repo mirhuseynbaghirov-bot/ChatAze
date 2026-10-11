@@ -45,6 +45,20 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .chip{display:flex;align-items:center;gap:10px;padding:5px 6px 5px 5px;border-radius:999px;border:1px solid var(--line);background:rgba(10,18,38,.8)}
 .avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--fd);font-weight:800;font-size:15px;color:#fff;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
 .uname{font-weight:700;font-size:14px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar{position:relative}
+.chip{cursor:pointer;transition:.18s}
+.chip:hover{border-color:var(--line2)}
+.chip .chev{width:14px;height:14px;stroke-width:3.4;color:var(--muted);margin-right:6px;transition:transform .2s}
+.chip[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.pmenu{position:absolute;z-index:10;top:calc(100% - 6px);right:24px;width:min(300px,calc(100vw - 28px));padding:14px;border-radius:18px;background:linear-gradient(180deg,rgba(14,24,50,.98),rgba(8,13,26,.99));border:1px solid var(--line2);box-shadow:0 24px 60px rgba(0,0,0,.6);animation:rise .2s both}
+.pm-top{display:flex;align-items:center;gap:12px;padding-bottom:12px;margin-bottom:10px;border-bottom:1px solid var(--line)}
+.pm-av{width:46px;height:46px;font-size:19px}
+.pm-info{min-width:0}
+.pm-name{font-family:var(--fd);font-weight:800;font-style:italic;font-size:18px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-mail{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-out{display:flex;align-items:center;gap:10px;width:100%;height:44px;padding:0 14px;border-radius:12px;background:rgba(255,93,115,.14);color:#ff9aa9;font-weight:800;font-size:14px;transition:.18s}
+.pm-out:hover{background:rgba(255,93,115,.26);color:#fff}
+.pm-out svg{width:18px;height:18px;stroke-width:2.4}
 .iconbtn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--muted);transition:.18s}
 .iconbtn:hover{color:#fff;background:rgba(255,93,115,.18)}
 .iconbtn svg{width:18px;height:18px;stroke-width:2}
@@ -193,6 +207,23 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .addm{display:none;margin-left:auto;height:40px;padding:0 14px;border-radius:13px;background:linear-gradient(135deg,#3a93ff,#1f6bff);font-weight:800;font-size:13px;color:#fff;align-items:center;gap:6px;flex:0 0 auto}
 .addm.show{display:flex}
 .chead .me{margin-left:10px}
+.card-join{margin-top:6px;font-size:11px;font-weight:800;color:#9cc7ff}
+.card-join.in{color:#35e0a1}
+.modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:16px;background:rgba(2,4,10,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.mbox{width:100%;max-width:460px;max-height:86dvh;overflow-y:auto;padding:20px;border-radius:22px;background:linear-gradient(180deg,rgba(14,24,50,.98),rgba(8,13,26,.99));border:1px solid var(--line2);box-shadow:0 40px 100px rgba(0,0,0,.6)}
+.mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.mtitle{font-family:var(--fd);font-weight:900;font-style:italic;font-size:22px}
+.mx{width:34px;height:34px;border-radius:10px;color:var(--muted);font-size:16px}
+.mx:hover{color:#fff;background:rgba(255,93,115,.18)}
+.msec{font-family:var(--fd);font-weight:800;font-style:italic;font-size:12px;letter-spacing:.1em;color:#5d6c8f;text-transform:uppercase;margin:18px 0 8px}
+.mempty{font-size:13px;color:var(--muted);padding:6px 2px}
+.mrow{display:flex;align-items:center;gap:8px;padding:9px 12px;margin-bottom:6px;border-radius:12px;background:rgba(10,18,38,.8);border:1px solid var(--line)}
+.mname{flex:1;min-width:0;font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mtag{font-size:11px;font-weight:800;color:#35e0a1}
+.mbtn{height:32px;padding:0 12px;border-radius:10px;font-weight:800;font-size:12.5px;color:#fff}
+.mbtn.ok{background:linear-gradient(135deg,#3a93ff,#1f6bff)}
+.mbtn.no{background:rgba(255,93,115,.2);color:#ff9aa9}
+.mbtn.wide{width:100%;height:42px;margin-top:12px;font-size:14px}
 
 /* ---------- misc ---------- */
 .setup{max-width:520px;text-align:center}
@@ -219,6 +250,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 }
 @media (max-width:600px){
   .topbar{padding:0 14px;height:62px}
+  .pmenu{right:14px}
   .uname{display:none}
   .chip{padding:4px}
   .wm{font-size:21px}
@@ -243,6 +275,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 <body>
 
 <div id="boot"><img src="mark.png" alt=""></div>
+<div id="manage" class="modal hidden"><div class="mbox" id="mbox"></div></div>
 
 <!-- ============ AUTH ============ -->
 <div id="auth" class="hidden">
@@ -296,10 +329,20 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 <div id="app" class="hidden">
   <header class="topbar">
     <div class="brand" id="brand"><img src="mark.png" alt=""><span class="wm">Chat<b>Aze</b></span></div>
-    <div class="chip">
+    <button class="chip" id="chip" type="button" aria-haspopup="true" aria-expanded="false">
       <div class="avatar" id="meAvatar"></div>
       <span class="uname" id="meName"></span>
-      <button class="iconbtn" id="logout" type="button" aria-label="Çıxış" title="Çıxış"><svg class="em" viewBox="0 0 64 64"><path d="M26 8H12a4 4 0 0 0-4 4v40a4 4 0 0 0 4 4h14M42 18l14 14-14 14M56 32H24"/></svg></button>
+      <svg class="em chev" viewBox="0 0 64 64"><path d="M14 24l18 18 18-18"/></svg>
+    </button>
+    <div class="pmenu hidden" id="pmenu">
+      <div class="pm-top">
+        <div class="avatar pm-av" id="pAvatar"></div>
+        <div class="pm-info">
+          <div class="pm-name" id="pName"></div>
+          <div class="pm-mail" id="pEmail"></div>
+        </div>
+      </div>
+      <button class="pm-out" id="logout" type="button"><svg class="em" viewBox="0 0 64 64"><path d="M26 8H12a4 4 0 0 0-4 4v40a4 4 0 0 0 4 4h14M42 18l14 14-14 14M56 32H24"/></svg>Çıxış</button>
     </div>
   </header>
 
@@ -331,7 +374,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
           <div class="ctitle" id="chTitle"></div>
           <div class="csub"><i class="live"></i><span id="chSub">Canlı çat otağı</span></div>
         </div>
-        <button class="addm" id="addMember" type="button">+ Üzv əlavə et</button>
+        <button class="addm" id="manageBtn" type="button">İdarə et</button>
         <div class="avatar me" id="meAvatar2"></div>
       </div>
       <div class="msgs" id="msgs"><div class="msgs-inner" id="msgsInner"></div></div>
@@ -349,7 +392,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDocs, where, updateDoc, arrayUnion }
+import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDoc, getDocs, where, updateDoc, deleteDoc, arrayUnion, arrayRemove, deleteField }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -362,7 +405,7 @@ const firebaseConfig = {
 };
 
 /* Admin hesabının UID-si (Firebase Console → Authentication → Users → "User UID") */
-const ADMIN_UID = 'Re0iC67fnQT42JjPfCpvPda4xHH2';
+const ADMIN_UID = 'BURAYA_ADMIN_UID';
 
 /* ============ Emblemlər (özümüz çəkdiyimiz ümumi ikonlar) ============ */
 const EM = {
@@ -503,7 +546,12 @@ $('authForm').addEventListener('submit', async e => {
     err.textContent = ERR[ex.code] || 'Xəta baş verdi. Yenidən cəhd et.';
   } finally { $('authBtn').disabled = false; }
 });
-$('logout').onclick = () => signOut(auth);
+const pm = $('pmenu'), chip = $('chip');
+function setMenu(open){ pm.classList.toggle('hidden', !open); chip.setAttribute('aria-expanded', open); }
+chip.onclick = e => { e.stopPropagation(); setMenu(pm.classList.contains('hidden')); };
+document.addEventListener('click', e => { if (!pm.contains(e.target)) setMenu(false); });
+document.addEventListener('keydown', e => { if (e.key==='Escape') setMenu(false); });
+$('logout').onclick = () => { setMenu(false); signOut(auth); };
 
 /* ============ Ana səhifə ============ */
 let activeCat = 'all';
@@ -560,8 +608,11 @@ function renderRail(activeId){
 }
 
 /* ============ Klanlar ============ */
-let CLANS = [], clansUnsub = null;
+let CLANS = [], clansUnsub = null, reqUnsub = null, REQS = [], manageId = null;
 const isAdmin = () => auth.currentUser?.uid === ADMIN_UID;
+const curClan = () => CLANS.find(c => 'clan-'+c.id === currentRoom);
+const memberName = (c,uid) => c.memberNames?.[uid] || (uid===c.ownerUid ? c.ownerName : 'Üzv');
+function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
 
 function startClans(){
   if (clansUnsub) return;
@@ -569,7 +620,10 @@ function startClans(){
     CLANS = snap.docs.map(d => ({ id:d.id, ...d.data() }));
     renderCats();
     if (!currentRoom && activeCat==='clans') renderGames();
-    route();
+    if (!currentRoom) route();
+    const c = curClan();
+    if (c) $('chSub').textContent = `Klan çatı · ${c.members.length} nəfər`;
+    renderManage();
   }, () => toast('Klanlar yüklənmədi. Firestore qaydalarını yoxla.'));
 }
 async function findUser(name){
@@ -583,22 +637,87 @@ async function createClan(){
     const u = await findUser(on);
     if (!u) return toast('Belə istifadəçi tapılmadı. Əvvəl sayta daxil olmalıdır.');
     await addDoc(collection(db,'clans'), {
-      name: name.trim(), ownerUid: u.uid, ownerName: u.name, members: [u.uid], createdAt: serverTimestamp()
+      name: name.trim(), ownerUid: u.uid, ownerName: u.name,
+      members: [u.uid], memberNames: { [u.uid]: u.name }, createdAt: serverTimestamp()
     });
     toast('Klan yaradıldı');
   } catch (ex) { toast('Klan yaradılmadı. Qaydaları yoxla.'); }
 }
-async function addMember(){
-  const clan = CLANS.find(c => 'clan-'+c.id === currentRoom); if (!clan) return;
+
+/* --- qoşulma sorğusu (hər kəs göndərə bilər, yalnız sahib təsdiqləyir) --- */
+async function joinRequest(c){
+  const user = auth.currentUser;
+  const ref = doc(db,'clans',c.id,'requests',user.uid);
+  try {
+    if ((await getDoc(ref)).exists()) return toast('Sorğun artıq göndərilib. Sahibin təsdiqini gözlə.');
+    if (!confirm(`"${c.name}" klanına qoşulmaq üçün sorğu göndərilsin?`)) return;
+    await setDoc(ref, { uid:user.uid, name:user.displayName || user.email.split('@')[0], createdAt:serverTimestamp() });
+    toast('Sorğu göndərildi');
+  } catch (ex) { toast('Sorğu göndərilmədi.'); }
+}
+
+/* --- sahibin idarəetməsi --- */
+async function approveReq(c, r){
+  try {
+    await updateDoc(doc(db,'clans',c.id), { members: arrayUnion(r.uid), ['memberNames.'+r.uid]: r.name });
+    await deleteDoc(doc(db,'clans',c.id,'requests',r.uid));
+    toast(r.name + ' klana qəbul edildi');
+  } catch (ex) { toast('Qəbul etmək alınmadı.'); }
+}
+async function rejectReq(c, r){
+  try { await deleteDoc(doc(db,'clans',c.id,'requests',r.uid)); } catch (ex) { toast('Alınmadı.'); }
+}
+async function removeMember(c, uid){
+  if (uid === c.ownerUid) return;
+  if (!confirm(`${memberName(c,uid)} klandan çıxarılsın?`)) return;
+  try {
+    await updateDoc(doc(db,'clans',c.id), { members: arrayRemove(uid), ['memberNames.'+uid]: deleteField() });
+    toast('Üzv çıxarıldı');
+  } catch (ex) { toast('Çıxarmaq alınmadı.'); }
+}
+async function addByName(c){
   const n = prompt('Əlavə ediləcək istifadəçi adı:'); if (!n) return;
   try {
     const u = await findUser(n);
     if (!u) return toast('İstifadəçi tapılmadı.');
-    if (clan.members.includes(u.uid)) return toast('Artıq klandadır.');
-    await updateDoc(doc(db,'clans',clan.id), { members: arrayUnion(u.uid) });
+    if (c.members.includes(u.uid)) return toast('Artıq klandadır.');
+    await updateDoc(doc(db,'clans',c.id), { members: arrayUnion(u.uid), ['memberNames.'+u.uid]: u.name });
     toast(u.name + ' əlavə olundu');
   } catch (ex) { toast('Əlavə etmək alınmadı.'); }
 }
+function updateManageBtn(){ $('manageBtn').textContent = REQS.length ? `İdarə et (${REQS.length})` : 'İdarə et'; }
+function openManage(){ const c = curClan(); if (!c) return; manageId = c.id; renderManage(); }
+function closeManage(){ manageId = null; $('manage').classList.add('hidden'); }
+function renderManage(){
+  const m = $('manage');
+  const c = CLANS.find(x => x.id === manageId);
+  if (!c || c.ownerUid !== auth.currentUser?.uid) { m.classList.add('hidden'); return; }
+  m.classList.remove('hidden');
+  const box = $('mbox'); box.innerHTML = '';
+  const head = el('div','mhead'); head.appendChild(el('div','mtitle', c.name));
+  const x = el('button','mx','✕'); x.type='button'; x.onclick = closeManage; head.appendChild(x); box.appendChild(head);
+
+  box.appendChild(el('div','msec', `Qoşulma sorğuları (${REQS.length})`));
+  if (!REQS.length) box.appendChild(el('div','mempty','Hələ sorğu yoxdur.'));
+  for (const r of REQS) {
+    const row = el('div','mrow'); row.appendChild(el('span','mname', r.name || 'İstifadəçi'));
+    const ok = el('button','mbtn ok','Qəbul et'); ok.type='button'; ok.onclick = () => approveReq(c, r);
+    const no = el('button','mbtn no','Rədd et'); no.type='button'; no.onclick = () => rejectReq(c, r);
+    row.appendChild(ok); row.appendChild(no); box.appendChild(row);
+  }
+
+  box.appendChild(el('div','msec', `Üzvlər (${c.members.length})`));
+  for (const uid of c.members) {
+    const row = el('div','mrow'); row.appendChild(el('span','mname', memberName(c,uid)));
+    if (uid === c.ownerUid) row.appendChild(el('span','mtag','sahib'));
+    else { const rm = el('button','mbtn no','Çıxar'); rm.type='button'; rm.onclick = () => removeMember(c, uid); row.appendChild(rm); }
+    box.appendChild(row);
+  }
+  const add = el('button','mbtn ok wide','+ Adla əlavə et'); add.type='button'; add.onclick = () => addByName(c); box.appendChild(add);
+}
+$('manageBtn').onclick = openManage;
+$('manage').onclick = e => { if (e.target === $('manage')) closeManage(); };
+
 function renderClans(){
   const grid = $('grid'); grid.innerHTML='';
   const me = auth.currentUser?.uid;
@@ -608,23 +727,24 @@ function renderClans(){
     a.onclick = createClan; grid.appendChild(a);
   }
   CLANS.forEach((c,i) => {
+    const can = c.members.includes(me) || isAdmin();
     const b = document.createElement('button'); b.type='button'; b.className='card';
     b.style.animationDelay = (i*45)+'ms';
     b.innerHTML = `<div class="card-top"><span class="card-no">${pad(i+1)}</span><span class="card-tag"></span></div>
       <div class="card-art"><div class="plate">${svg('shield')}</div></div>
-      <div class="card-bot"><div><div class="card-name"></div><div class="card-sub"></div></div>
+      <div class="card-bot"><div><div class="card-name"></div><div class="card-sub"></div><div class="card-join"></div></div>
       <span class="go"><svg class="em" viewBox="0 0 64 64"><path d="M10 32h44M36 14l18 18-18 18"/></svg></span></div>`;
     b.querySelector('.card-tag').textContent = c.members.length + ' nəfər';
     b.querySelector('.card-name').textContent = c.name;
     b.querySelector('.card-sub').textContent = 'Sahib: ' + c.ownerName;
-    b.onclick = () => (c.members.includes(me) || isAdmin())
-      ? (location.hash = '#/chat/clan-'+c.id)
-      : toast('Bu klana yalnız üzvlər girə bilər. Klan sahibinə yaz.');
+    const j = b.querySelector('.card-join');
+    j.textContent = can ? 'Daxil ol' : 'Qoşulmaq üçün toxun';
+    if (can) j.classList.add('in');
+    b.onclick = () => can ? (location.hash = '#/chat/clan-'+c.id) : joinRequest(c);
     grid.appendChild(b);
   });
   if (!CLANS.length && !isAdmin()) grid.innerHTML = '<div class="cempty"><b>Hələ klan yoxdur</b>Klan istəyirsənsə admin-ə yaz.</div>';
 }
-$('addMember').onclick = addMember;
 
 /* ============ Çat ============ */
 let unsub = null, currentRoom = null, lastSend = 0;
@@ -641,7 +761,14 @@ function openChat(id){
   $('chat').classList.remove('hidden');
   $('chTitle').textContent = g.name;
   $('chSub').textContent = clan ? `Klan çatı · ${clan.members.length} nəfər` : 'Canlı çat otağı';
-  $('addMember').classList.toggle('show', !!clan && clan.ownerUid === auth.currentUser.uid);
+  const owner = !!clan && clan.ownerUid === auth.currentUser.uid;
+  $('manageBtn').classList.toggle('show', owner);
+  if (reqUnsub) { reqUnsub(); reqUnsub = null; }
+  REQS = []; updateManageBtn();
+  if (owner) reqUnsub = onSnapshot(collection(db,'clans',clan.id,'requests'), snap => {
+    REQS = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    updateManageBtn(); renderManage();
+  }, () => {});
   fillPlate($('chPlate'), g);
   renderRail(id);
   const inner = $('msgsInner');
@@ -664,7 +791,9 @@ function openChat(id){
 function closeChat(){
   if (unsub) { unsub(); unsub=null; }
   currentRoom = null;
-  $('addMember').classList.remove('show');
+  $('manageBtn').classList.remove('show');
+  if (reqUnsub) { reqUnsub(); reqUnsub = null; }
+  REQS = []; closeManage();
   $('app').classList.remove('in-chat');
   $('chat').classList.add('hidden');
   $('home').classList.remove('hidden');
@@ -746,6 +875,9 @@ function showApp(user){
   $('meName').textContent = name;
   setAvatar($('meAvatar'), name, user.uid);
   setAvatar($('meAvatar2'), name, user.uid);
+  setAvatar($('pAvatar'), name, user.uid);
+  $('pName').textContent = name;
+  $('pEmail').textContent = user.email || '';
   setDoc(doc(db,'users',user.uid), { name, nameLower:name.toLowerCase() }, { merge:true }).catch(()=>{});
   renderStats(); renderCats(); renderGames();
   startClans();
