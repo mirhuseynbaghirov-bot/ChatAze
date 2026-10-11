@@ -18,7 +18,7 @@
   --fd:'Exo 2',system-ui,sans-serif; --fb:'Manrope',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+html,body{height:100%;width:100%;max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 body{font-family:var(--fb);background:var(--bg);color:var(--text);line-height:1.5;overflow:hidden;-webkit-font-smoothing:antialiased}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background:radial-gradient(900px 520px at 12% -8%,rgba(31,107,255,.24),transparent 60%),
@@ -50,7 +50,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .iconbtn svg{width:18px;height:18px;stroke-width:2}
 
 /* ---------- home ---------- */
-#home{flex:1;overflow-y:auto;overflow-x:hidden}
+#home{flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;touch-action:pan-y}
 .container{max-width:1160px;margin:0 auto;padding:0 24px 80px}
 .hero{position:relative;padding:54px 0 10px}
 .hero::after{content:"";position:absolute;right:-30px;top:-10px;width:360px;height:360px;background:url(mark.png) center/contain no-repeat;opacity:.1;pointer-events:none}
@@ -74,6 +74,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .cat.active .n{background:rgba(255,255,255,.2);color:#fff}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:16px}
+.grid>*{min-width:0}
 .card{position:relative;display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:4/4.7;padding:16px;border-radius:22px;background:linear-gradient(180deg,rgba(15,26,54,.92),rgba(7,11,21,.96));border:1px solid var(--line);overflow:hidden;text-align:left;isolation:isolate;transition:transform .25s,border-color .25s,box-shadow .25s;animation:rise .5s both}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .card::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(120% 70% at 50% 112%,rgba(31,107,255,.4),transparent 62%);opacity:.65;transition:opacity .3s}
@@ -88,7 +89,6 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .plate{position:relative;width:100px;height:100px;border-radius:30px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(31,107,255,.26),rgba(31,107,255,.04));border:1px solid var(--line2);box-shadow:inset 0 0 34px rgba(31,107,255,.2),0 0 46px rgba(31,107,255,.2);color:var(--cyan);transition:transform .3s}
 .card:hover .plate{transform:scale(1.08) rotate(-3deg)}
 .plate svg{width:54px;height:54px;filter:drop-shadow(0 0 9px rgba(69,200,255,.6))}
-.plate img{position:absolute;inset:14%;width:72%;height:72%;object-fit:contain}
 .card-bot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
 .card-name{font-family:var(--fd);font-weight:800;font-style:italic;font-size:20px;line-height:1.1;letter-spacing:-.01em}
 .card-sub{font-size:12px;color:var(--muted);margin-top:4px;font-weight:600}
@@ -112,7 +112,6 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .rplate{position:relative;width:40px;height:40px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;background:rgba(31,107,255,.12);border:1px solid var(--line);color:var(--cyan)}
 .ritem.active .rplate{border-color:var(--line2);box-shadow:0 0 18px rgba(31,107,255,.35)}
 .rplate svg{width:22px;height:22px;stroke-width:3.2}
-.rplate img{position:absolute;inset:18%;width:64%;height:64%;object-fit:contain}
 .rname{font-weight:700;font-size:14.5px}
 
 .cmain{display:flex;flex-direction:column;min-height:0;min-width:0}
@@ -122,7 +121,9 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .back svg{width:19px;height:19px;stroke-width:2.6}
 .chplate{position:relative;width:44px;height:44px;border-radius:14px;flex:0 0 auto;display:grid;place-items:center;background:linear-gradient(145deg,rgba(31,107,255,.28),rgba(31,107,255,.05));border:1px solid var(--line2);color:var(--cyan);box-shadow:0 0 24px rgba(31,107,255,.28)}
 .chplate svg{width:25px;height:25px;stroke-width:3}
-.chplate img{position:absolute;inset:16%;width:68%;height:68%;object-fit:contain}
+.has-logo{overflow:hidden;border-color:var(--line2)}
+.has-logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.card:hover .plate.has-logo{box-shadow:0 0 56px rgba(31,107,255,.45)}
 .ctitle{font-family:var(--fd);font-weight:800;font-style:italic;font-size:20px;line-height:1.15}
 .csub{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);font-weight:600}
 .chead .me{margin-left:auto;display:none}
@@ -218,7 +219,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
   .wm{font-size:21px}
   .container{padding:0 14px 60px}
   .hero{padding:34px 0 4px}
-  .hero::after{width:230px;height:230px;right:-60px;top:-20px}
+  .hero::after{width:230px;height:230px;right:0;top:-10px}
   .hero p{font-size:14.5px}
   .grid{grid-template-columns:1fr 1fr;gap:11px}
   .card{aspect-ratio:auto;min-height:196px;padding:13px;border-radius:18px;gap:8px}
@@ -426,7 +427,7 @@ function fillPlate(el, g){
   el.innerHTML = svg(g.em);
   const img = new Image();
   img.alt = '';
-  img.onload = () => { el.innerHTML = ''; el.appendChild(img); img.style.position='absolute'; };
+  img.onload = () => { el.innerHTML = ''; el.classList.add('has-logo'); el.appendChild(img); };
   img.src = `games/${g.id}.png`;
 }
 
