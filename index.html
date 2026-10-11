@@ -6,6 +6,11 @@
 <meta name="theme-color" content="#04060c">
 <title>ChatAze — Oyunlar haqqında söhbət et</title>
 <link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="mark.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ChatAze">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,500;0,700;0,800;1,700;1,800;1,900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -56,6 +61,10 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .pm-info{min-width:0}
 .pm-name{font-family:var(--fd);font-weight:800;font-style:italic;font-size:18px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pm-mail{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-push{display:flex;align-items:center;gap:10px;width:100%;height:44px;padding:0 14px;margin-bottom:8px;border-radius:12px;background:rgba(31,107,255,.16);color:#9cc7ff;font-weight:800;font-size:14px;transition:.18s}
+.pm-push:hover{background:rgba(31,107,255,.28);color:#fff}
+.pm-push.on{background:rgba(53,224,161,.14);color:#35e0a1}
+.pm-push svg{width:18px;height:18px;stroke-width:2.4}
 .pm-out{display:flex;align-items:center;gap:10px;width:100%;height:44px;padding:0 14px;border-radius:12px;background:rgba(255,93,115,.14);color:#ff9aa9;font-weight:800;font-size:14px;transition:.18s}
 .pm-out:hover{background:rgba(255,93,115,.26);color:#fff}
 .pm-out svg{width:18px;height:18px;stroke-width:2.4}
@@ -349,6 +358,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
           <div class="pm-mail" id="pEmail"></div>
         </div>
       </div>
+      <button class="pm-push" id="pushBtn" type="button"><svg class="em" viewBox="0 0 64 64"><path d="M32 8a14 14 0 0 0-14 14v12l-6 10h40l-6-10V22A14 14 0 0 0 32 8zM26 54a6 6 0 0 0 12 0"/></svg><span id="pushTxt">Bildirişləri aç</span></button>
       <button class="pm-out" id="logout" type="button"><svg class="em" viewBox="0 0 64 64"><path d="M26 8H12a4 4 0 0 0-4 4v40a4 4 0 0 0 4 4h14M42 18l14 14-14 14M56 32H24"/></svg>Çıxış</button>
     </div>
   </header>
@@ -401,6 +411,7 @@ import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWith
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDoc, getDocs, where, updateDoc, deleteDoc, arrayUnion, arrayRemove, deleteField }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDTOSWmHMRk13RdA1kPsZEX96xapBQf-xI",
@@ -413,6 +424,8 @@ const firebaseConfig = {
 
 /* Admin hesabının UID-si (Firebase Console → Authentication → Users → "User UID") */
 const ADMIN_UID = 'BURAYA_ADMIN_UID';
+/* Firebase Console → Project settings → Cloud Messaging → Web Push certificates → Key pair */
+const VAPID_KEY = 'BURAYA_VAPID_KEY';
 
 /* ============ Emblemlər (özümüz çəkdiyimiz ümumi ikonlar) ============ */
 const EM = {
@@ -567,6 +580,38 @@ $('authForm').addEventListener('submit', async e => {
     err.textContent = ERR[ex.code] || 'Xəta baş verdi. Yenidən cəhd et.';
   } finally { $('authBtn').disabled = false; }
 });
+/* ============ Telefona bildiriş ============ */
+const pushOK = () => 'serviceWorker' in navigator && 'Notification' in window && 'PushManager' in window;
+function updatePushBtn(){
+  const on = pushOK() && Notification.permission === 'granted' && localStorage.getItem('pushOn') === '1';
+  $('pushBtn').classList.toggle('on', on);
+  $('pushTxt').textContent = on ? 'Bildirişlər aktivdir' : 'Bildirişləri aç';
+}
+async function enablePush(silent){
+  try {
+    if (!pushOK()) {
+      if (silent) return;
+      return toast(/iphone|ipad/i.test(navigator.userAgent)
+        ? 'iPhone-da əvvəl saytı Paylaş → "Əsas ekrana əlavə et" ilə quraşdır, sonra ordan aç.'
+        : 'Bu brauzer bildirişi dəstəkləmir.');
+    }
+    if (Notification.permission !== 'granted') {
+      if (silent) return;
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') return toast('Bildiriş icazəsi verilmədi.');
+    }
+    const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    await navigator.serviceWorker.ready;
+    const token = await getToken(getMessaging(app), { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+    if (!token) { if (!silent) toast('Bildiriş tokeni alınmadı.'); return; }
+    await setDoc(doc(db,'tokens',auth.currentUser.uid), { list: arrayUnion(token) }, { merge:true });
+    try { localStorage.setItem('pushOn','1'); } catch (_) {}
+    updatePushBtn();
+    if (!silent) toast('Bildirişlər aktivdir');
+  } catch (ex) { if (!silent) toast('Bildiriş qoşulmadı.'); }
+}
+$('pushBtn').onclick = () => { if ($('pushBtn').classList.contains('on')) toast('Bildirişlər artıq aktivdir.'); else enablePush(false); };
+
 const pm = $('pmenu'), chip = $('chip');
 function setMenu(open){ pm.classList.toggle('hidden', !open); chip.setAttribute('aria-expanded', open); }
 chip.onclick = e => { e.stopPropagation(); setMenu(pm.classList.contains('hidden')); };
@@ -862,6 +907,7 @@ $('composer').addEventListener('submit', async e => {
   if (!text || !user || !currentRoom) return;
   if (Date.now() - lastSend < 800) return;
   lastSend = Date.now();
+  const room = currentRoom;
   input.value = '';
   try {
     await addDoc(collection(db,'rooms',currentRoom,'messages'), {
@@ -870,6 +916,13 @@ $('composer').addEventListener('submit', async e => {
       text: text.slice(0,500),
       createdAt: serverTimestamp()
     });
+    if (room.startsWith('clan-')) {
+      user.getIdToken().then(t => fetch('/api/notify', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', Authorization:'Bearer '+t },
+        body: JSON.stringify({ clanId: room.slice(5), text: text.slice(0,500) })
+      })).catch(()=>{});
+    }
   } catch (ex) {
     input.value = text;
     toast('Mesaj göndərilmədi. Bağlantını yoxla.');
@@ -902,6 +955,7 @@ function showApp(user){
   setDoc(doc(db,'users',user.uid), { name, nameLower:name.toLowerCase() }, { merge:true }).catch(()=>{});
   renderStats(); renderCats(); renderGames();
   startClans();
+  updatePushBtn(); enablePush(true);
   route();
 }
 onAuthStateChanged(auth, user => {
