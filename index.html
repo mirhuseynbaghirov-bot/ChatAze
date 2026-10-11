@@ -2,7 +2,7 @@
 <html lang="az">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#04060c">
 <title>ChatAze — Oyunlar haqqında söhbət et</title>
 <link rel="icon" type="image/png" href="favicon.png">
@@ -45,17 +45,17 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .wm b{background:linear-gradient(180deg,#6cbcff,#1f6bff);-webkit-background-clip:text;background-clip:text;color:transparent}
 
 /* ---------- app shell ---------- */
-#app{position:fixed;left:0;top:0;z-index:1;width:100%;height:var(--vh,100dvh);overflow:hidden;display:flex;flex-direction:column}
+#app{position:fixed;inset:0;z-index:1;overflow:hidden;display:flex;flex-direction:column}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;height:68px;padding:0 24px;border-bottom:1px solid var(--line);background:rgba(4,6,12,.72);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);flex:0 0 auto}
 .chip{display:flex;align-items:center;gap:10px;padding:5px 6px 5px 5px;border-radius:999px;border:1px solid var(--line);background:rgba(10,18,38,.8)}
 .avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--fd);font-weight:800;font-size:15px;color:#fff;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
 .uname{font-weight:700;font-size:14px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.topbar{position:relative}
+.topbar{position:relative;z-index:50}
 .chip{cursor:pointer;transition:.18s}
 .chip:hover{border-color:var(--line2)}
 .chip .chev{width:14px;height:14px;stroke-width:3.4;color:var(--muted);margin-right:6px;transition:transform .2s}
 .chip[aria-expanded="true"] .chev{transform:rotate(180deg)}
-.pmenu{position:absolute;z-index:10;top:calc(100% - 6px);right:24px;width:min(300px,calc(100vw - 28px));padding:14px;border-radius:18px;background:linear-gradient(180deg,rgba(14,24,50,.98),rgba(8,13,26,.99));border:1px solid var(--line2);box-shadow:0 24px 60px rgba(0,0,0,.6);animation:rise .2s both}
+.pmenu{position:absolute;z-index:10;top:calc(100% - 6px);right:24px;width:min(300px,calc(100vw - 28px));padding:14px;border-radius:18px;background:#0b1430;border:1px solid var(--line2);box-shadow:0 24px 60px rgba(0,0,0,.7)}
 .pm-top{display:flex;align-items:center;gap:12px;padding-bottom:12px;margin-bottom:10px;border-bottom:1px solid var(--line)}
 .pm-av{width:46px;height:46px;font-size:19px}
 .pm-info{min-width:0}
@@ -406,6 +406,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 </div>
 
 <script type="module">
+import { ADMIN_UID, VAPID_KEY } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
@@ -421,11 +422,6 @@ const firebaseConfig = {
   messagingSenderId: "469569192344",
   appId: "1:469569192344:web:8bc5cc09dd4729912f6bed"
 };
-
-/* Admin hesabının UID-si (Firebase Console → Authentication → Users → "User UID") */
-const ADMIN_UID = 'Re0iC67fnQT42JjPfCpvPda4xHH2';
-/* Firebase Console → Project settings → Cloud Messaging → Web Push certificates → Key pair */
-const VAPID_KEY = 'BIKM5iVtGK-yHwYsQUNxtAMZDzcZMRTOehA8Z9Sy4rBUb096D3uBDnQmKgh2FJ46bQ7fsEd_VDrcyZTRwnZvUg8';
 
 /* ============ Emblemlər (özümüz çəkdiyimiz ümumi ikonlar) ============ */
 const EM = {
@@ -504,20 +500,6 @@ function fillPlate(el, g){
   img.onload = () => { el.innerHTML = ''; el.classList.add('has-logo'); el.appendChild(img); };
   img.src = `games/${g.id}.png`;
 }
-
-/* ============ Ekrana sığdırma (aşağı-yuxarı çəkilmə olmasın) ============ */
-const vv = window.visualViewport;
-function fitScreen(){
-  const h = vv ? vv.height : window.innerHeight;
-  document.documentElement.style.setProperty('--vh', h + 'px');
-  const a = document.getElementById('app');
-  if (a) a.style.top = (vv ? vv.offsetTop : 0) + 'px';
-  if (window.scrollY) window.scrollTo(0,0);
-}
-fitScreen();
-if (vv) { vv.addEventListener('resize', fitScreen); vv.addEventListener('scroll', fitScreen); }
-window.addEventListener('resize', fitScreen);
-window.addEventListener('orientationchange', fitScreen);
 
 /* ============ Quraşdırma yoxlaması ============ */
 if (firebaseConfig.apiKey.startsWith('BURA')) {
