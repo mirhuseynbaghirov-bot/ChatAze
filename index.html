@@ -218,6 +218,10 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .addm{display:none;margin-left:auto;height:40px;padding:0 14px;border-radius:13px;background:linear-gradient(135deg,#3a93ff,#1f6bff);font-weight:800;font-size:13px;color:#fff;align-items:center;gap:6px;flex:0 0 auto}
 .addm.show{display:flex}
 .chead .me{margin-left:0;flex:0 0 auto}
+.clrbtn{display:none;width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:rgba(10,18,38,.8);place-items:center;flex:0 0 auto;color:#ff9aa9;transition:.18s}
+.clrbtn.show{display:grid}
+.clrbtn:hover{background:rgba(255,93,115,.2);border-color:rgba(255,93,115,.5)}
+.clrbtn svg{width:19px;height:19px;stroke-width:2.6}
 .bellbtn{display:none;width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:rgba(10,18,38,.8);place-items:center;flex:0 0 auto;color:var(--muted);transition:.18s}
 .bellbtn.show{display:grid}
 .bellbtn svg{width:19px;height:19px;stroke-width:2.6}
@@ -404,6 +408,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
           <div class="ctitle" id="chTitle"></div>
           <div class="csub"><i class="live"></i><span id="chSub">Canlı çat otağı</span></div>
         </div>
+        <button class="clrbtn" id="clearBtn" type="button" aria-label="Çatı təmizlə" title="Çatı təmizlə"><svg class="em" viewBox="0 0 64 64"><path d="M12 18h40M24 18V10h16v8M16 18l3 38h26l3-38M28 28v18M36 28v18"/></svg></button>
         <button class="bellbtn" id="bellBtn" type="button" aria-label="Bildirişlər"><svg class="em" viewBox="0 0 64 64"><path d="M32 8a14 14 0 0 0-14 14v12l-6 10h40l-6-10V22A14 14 0 0 0 32 8zM26 54a6 6 0 0 0 12 0"/></svg></button>
         <button class="addm" id="manageBtn" type="button">İdarə et</button>
         <div class="avatar me" id="meAvatar2"></div>
@@ -424,7 +429,7 @@ import { ADMIN_UID, VAPID_KEY } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDoc, getDocs, where, updateDoc, deleteDoc, arrayUnion, arrayRemove, deleteField }
+import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDoc, getDocs, where, updateDoc, deleteDoc, writeBatch, arrayUnion, arrayRemove, deleteField }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
 
@@ -822,6 +827,7 @@ function updateBell(){
   const b = $('bellBtn'), g = gameById(currentRoom);
   b.classList.toggle('show', !!g);
   b.classList.toggle('on', !!g && MYGAMES.includes(g.id));
+  $('clearBtn').classList.toggle('show', isAdmin() && !!currentRoom);
 }
 const pushReady = () => pushOK() && Notification.permission === 'granted' && localStorage.getItem('pushOn') === '1';
 function openNotif(){ if (!gameById(currentRoom)) return; notifOpen = true; renderNotif(); }
@@ -853,6 +859,27 @@ async function toggleGame(id, want){
   } catch (ex) { toast('Alınmadı. Yenidən yoxla.'); }
 }
 $('bellBtn').onclick = openNotif;
+
+/* ============ Admin: çatı təmizlə ============ */
+async function clearChat(){
+  if (!isAdmin() || !currentRoom) return;
+  const room = currentRoom, name = $('chTitle').textContent;
+  if (!confirm(`"${name}" çatındakı BÜTÜN mesajlar silinsin?\nBu geri qaytarılmır.`)) return;
+  let total = 0;
+  try {
+    while (true) {
+      const snap = await getDocs(query(collection(db,'rooms',room,'messages'), limit(400)));
+      if (snap.empty) break;
+      const b = writeBatch(db);
+      snap.docs.forEach(d => b.delete(d.ref));
+      await b.commit();
+      total += snap.size;
+      if (snap.size < 400) break;
+    }
+    toast(total ? `${total} mesaj silindi` : 'Çat artıq boşdur');
+  } catch (ex) { toast('Silmək alınmadı. Rules-u yoxla.'); }
+}
+$('clearBtn').onclick = clearChat;
 $('notif').onclick = e => { if (e.target === $('notif')) closeNotif(); };
 
 /* ============ Çat ============ */
