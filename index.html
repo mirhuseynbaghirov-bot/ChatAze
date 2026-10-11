@@ -3,196 +3,338 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ChatAze — Oyunçuları tap</title>
+<meta name="theme-color" content="#04060c">
+<title>ChatAze — Oyunlar haqqında söhbət et</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,500;0,700;0,800;1,700;1,800;1,900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b0d14; --bg2:#10131d; --card:#151a27; --card2:#1b2132; --line:#242b3f;
-  --text:#eef1f8; --muted:#8c95ad; --accent:#7c5cff; --accent2:#4f8bff;
-  --ok:#2ecc8f; --danger:#ff5d73; --radius:16px;
+  --bg:#04060c; --bg1:#070b15; --panel:#0a1226; --panel2:#0d1832;
+  --line:rgba(74,140,255,.16); --line2:rgba(74,140,255,.36);
+  --text:#eef3ff; --muted:#7f8caa;
+  --blue:#1f6bff; --blue2:#3a93ff; --cyan:#45c8ff; --danger:#ff5d73;
+  --fd:'Exo 2',system-ui,sans-serif; --fb:'Manrope',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.45;overflow:hidden}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);line-height:1.5;overflow:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(900px 520px at 12% -8%,rgba(31,107,255,.24),transparent 60%),
+             radial-gradient(760px 520px at 105% 108%,rgba(69,200,255,.13),transparent 60%)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(74,140,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(74,140,255,.055) 1px,transparent 1px);
+  background-size:52px 52px;
+  -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 0%,#000 15%,transparent 75%);
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 0%,#000 15%,transparent 75%)}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 input{font:inherit;color:inherit}
 .hidden{display:none!important}
+svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
 
-/* ---------- Layout ---------- */
-#app{height:100dvh;display:flex;flex-direction:column}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);background:rgba(11,13,20,.85);backdrop-filter:blur(12px);flex:0 0 auto}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.02em}
-.brand-logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:18px}
-.userbox{display:flex;align-items:center;gap:10px}
-.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff;flex:0 0 auto}
-.uname{font-weight:600;font-size:14px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.btn-ghost{padding:8px 14px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--muted);transition:.15s}
-.btn-ghost:hover{color:var(--text);border-color:#3a4363}
+/* ---------- wordmark ---------- */
+.brand{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.brand img{width:42px;height:42px;object-fit:contain;filter:drop-shadow(0 0 14px rgba(31,107,255,.55))}
+.wm{font-family:var(--fd);font-weight:900;font-style:italic;font-size:24px;letter-spacing:-.01em;line-height:1}
+.wm b{background:linear-gradient(180deg,#6cbcff,#1f6bff);-webkit-background-clip:text;background-clip:text;color:transparent}
 
-/* ---------- Home ---------- */
-#home{flex:1;overflow-y:auto}
-.container{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
-.hero h1{font-size:clamp(26px,4.5vw,38px);font-weight:800;letter-spacing:-.03em}
-.hero p{color:var(--muted);margin-top:6px;font-size:15px}
-.cats{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0 20px}
-.cat{padding:10px 16px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:600;color:var(--muted);transition:.15s;display:flex;align-items:center;gap:7px}
-.cat:hover{color:var(--text);border-color:#3a4363}
-.cat.active{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff;box-shadow:0 6px 20px rgba(124,92,255,.35)}
-.cat .count{font-size:12px;opacity:.75;font-weight:700}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-.game{position:relative;text-align:left;padding:18px;border-radius:var(--radius);background:var(--card);border:1px solid var(--line);overflow:hidden;transition:transform .15s,border-color .15s,box-shadow .15s;display:flex;flex-direction:column;gap:14px;min-height:150px}
-.game::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 100% 0%,var(--g1),transparent 60%);opacity:.22;transition:.2s;pointer-events:none}
-.game:hover{transform:translateY(-3px);border-color:#3a4363;box-shadow:0 14px 34px rgba(0,0,0,.4)}
-.game:hover::before{opacity:.38}
-.game-ico{position:relative;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px;background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:0 8px 18px rgba(0,0,0,.35)}
-.game-name{position:relative;font-weight:700;font-size:17px;letter-spacing:-.01em}
-.game-meta{position:relative;font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;margin-top:auto}
-.enter{color:var(--text);font-weight:600;display:flex;align-items:center;gap:4px}
-.empty{color:var(--muted);text-align:center;padding:40px 0}
+/* ---------- app shell ---------- */
+#app{position:relative;z-index:1;height:100dvh;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;height:68px;padding:0 24px;border-bottom:1px solid var(--line);background:rgba(4,6,12,.72);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);flex:0 0 auto}
+.chip{display:flex;align-items:center;gap:10px;padding:5px 6px 5px 5px;border-radius:999px;border:1px solid var(--line);background:rgba(10,18,38,.8)}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--fd);font-weight:800;font-size:15px;color:#fff;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.uname{font-weight:700;font-size:14px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.iconbtn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--muted);transition:.18s}
+.iconbtn:hover{color:#fff;background:rgba(255,93,115,.18)}
+.iconbtn svg{width:18px;height:18px;stroke-width:2}
 
-/* ---------- Chat ---------- */
-#chat{flex:1;display:flex;flex-direction:column;min-height:0}
-.chat-head{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg2);flex:0 0 auto}
-.back{width:38px;height:38px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;font-size:18px;transition:.15s}
-.back:hover{border-color:#3a4363}
-.chat-ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px}
-.chat-title{font-weight:700;font-size:16px;line-height:1.2}
-.chat-sub{font-size:12px;color:var(--muted)}
-.msgs{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:2px;scroll-behavior:smooth}
-.msgs-inner{width:100%;max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:2px}
-.row{display:flex;gap:10px;align-items:flex-end;margin-top:10px}
-.row.same{margin-top:0}
+/* ---------- home ---------- */
+#home{flex:1;overflow-y:auto;overflow-x:hidden}
+.container{max-width:1160px;margin:0 auto;padding:0 24px 80px}
+.hero{position:relative;padding:54px 0 10px}
+.hero::after{content:"";position:absolute;right:-30px;top:-10px;width:360px;height:360px;background:url(mark.png) center/contain no-repeat;opacity:.1;pointer-events:none}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;border:1px solid var(--line2);background:rgba(31,107,255,.1);font-size:12px;font-weight:700;color:#9cc7ff;letter-spacing:.04em}
+.live{width:7px;height:7px;border-radius:50%;background:#35e0a1;box-shadow:0 0 0 0 rgba(53,224,161,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(53,224,161,0)}100%{box-shadow:0 0 0 0 rgba(53,224,161,0)}}
+.hero h1{font-family:var(--fd);font-weight:900;font-style:italic;font-size:clamp(36px,6.4vw,66px);line-height:1.02;letter-spacing:-.02em;margin:16px 0 12px;position:relative;z-index:1}
+.hero h1 em{font-style:italic;background:linear-gradient(95deg,#7fd4ff,#2f8bff 55%,#1f6bff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);font-size:16px;max-width:520px;position:relative;z-index:1}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;position:relative;z-index:1}
+.stat{padding:9px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(10,18,38,.7);font-size:13px;color:var(--muted)}
+.stat b{font-family:var(--fd);font-weight:800;font-size:17px;color:#fff;margin-right:4px}
+
+.cats{display:flex;gap:10px;overflow-x:auto;padding:30px 2px 18px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{flex:0 0 auto;display:flex;align-items:center;gap:9px;height:46px;padding:0 18px 0 14px;border-radius:14px;background:rgba(10,18,38,.8);border:1px solid var(--line);font-weight:700;font-size:14px;color:var(--muted);transition:.2s}
+.cat svg{width:20px;height:20px;stroke-width:3.2}
+.cat:hover{color:#fff;border-color:var(--line2)}
+.cat .n{font-family:var(--fd);font-size:12px;font-weight:800;padding:2px 7px;border-radius:8px;background:rgba(74,140,255,.14);color:#9cc7ff}
+.cat.active{color:#fff;border-color:transparent;background:linear-gradient(135deg,#2f7dff,#0b4fd6);box-shadow:0 10px 30px rgba(31,107,255,.45)}
+.cat.active .n{background:rgba(255,255,255,.2);color:#fff}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:16px}
+.card{position:relative;display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:4/4.7;padding:16px;border-radius:22px;background:linear-gradient(180deg,rgba(15,26,54,.92),rgba(7,11,21,.96));border:1px solid var(--line);overflow:hidden;text-align:left;isolation:isolate;transition:transform .25s,border-color .25s,box-shadow .25s;animation:rise .5s both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.card::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(120% 70% at 50% 112%,rgba(31,107,255,.4),transparent 62%);opacity:.65;transition:opacity .3s}
+.card::after{content:"";position:absolute;top:0;left:-70%;width:40%;height:100%;z-index:-1;background:linear-gradient(100deg,transparent,rgba(140,190,255,.14),transparent);transform:skewX(-18deg);transition:left .7s}
+.card:hover{transform:translateY(-5px);border-color:var(--line2);box-shadow:0 22px 50px rgba(0,0,0,.55),0 12px 44px rgba(31,107,255,.26)}
+.card:hover::before{opacity:1}
+.card:hover::after{left:135%}
+.card-top{display:flex;align-items:center;justify-content:space-between}
+.card-no{font-family:var(--fd);font-style:italic;font-weight:800;font-size:13px;color:rgba(160,195,255,.45)}
+.card-tag{padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(4,6,12,.55);font-size:11px;font-weight:700;color:#9cc7ff}
+.card-art{flex:1;display:grid;place-items:center}
+.plate{position:relative;width:100px;height:100px;border-radius:30px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(31,107,255,.26),rgba(31,107,255,.04));border:1px solid var(--line2);box-shadow:inset 0 0 34px rgba(31,107,255,.2),0 0 46px rgba(31,107,255,.2);color:var(--cyan);transition:transform .3s}
+.card:hover .plate{transform:scale(1.08) rotate(-3deg)}
+.plate svg{width:54px;height:54px;filter:drop-shadow(0 0 9px rgba(69,200,255,.6))}
+.plate img{position:absolute;inset:14%;width:72%;height:72%;object-fit:contain}
+.card-bot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.card-name{font-family:var(--fd);font-weight:800;font-style:italic;font-size:20px;line-height:1.1;letter-spacing:-.01em}
+.card-sub{font-size:12px;color:var(--muted);margin-top:4px;font-weight:600}
+.go{width:40px;height:40px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;background:rgba(31,107,255,.9);transition:.25s}
+.go svg{width:18px;height:18px;stroke-width:2.6;color:#fff}
+.card:hover .go{background:linear-gradient(135deg,#4aa0ff,#1f6bff);transform:translateX(3px);box-shadow:0 8px 24px rgba(31,107,255,.65)}
+
+/* ---------- chat ---------- */
+#chat{flex:1;min-height:0;display:grid;grid-template-columns:1fr}
+.rail{display:none;flex-direction:column;min-height:0;border-right:1px solid var(--line);background:rgba(7,11,21,.72)}
+.rail-top{padding:16px 14px 6px}
+.rail-home{display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(10,18,38,.8);font-weight:700;font-size:14px;color:#cfe0ff;transition:.18s}
+.rail-home:hover{border-color:var(--line2);color:#fff}
+.rail-home svg{width:18px;height:18px;stroke-width:2.6}
+.rail-list{flex:1;overflow-y:auto;padding:6px 10px 18px}
+.rgroup{font-family:var(--fd);font-weight:800;font-style:italic;font-size:12px;letter-spacing:.12em;color:#5d6c8f;padding:16px 10px 6px}
+.ritem{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:9px 10px;border-radius:14px;color:var(--muted);text-align:left;transition:.18s}
+.ritem:hover{background:rgba(31,107,255,.09);color:#fff}
+.ritem.active{color:#fff;background:linear-gradient(90deg,rgba(31,107,255,.28),rgba(31,107,255,.04))}
+.ritem.active::before{content:"";position:absolute;left:0;top:11px;bottom:11px;width:3px;border-radius:3px;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.rplate{position:relative;width:40px;height:40px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;background:rgba(31,107,255,.12);border:1px solid var(--line);color:var(--cyan)}
+.ritem.active .rplate{border-color:var(--line2);box-shadow:0 0 18px rgba(31,107,255,.35)}
+.rplate svg{width:22px;height:22px;stroke-width:3.2}
+.rplate img{position:absolute;inset:18%;width:64%;height:64%;object-fit:contain}
+.rname{font-weight:700;font-size:14.5px}
+
+.cmain{display:flex;flex-direction:column;min-height:0;min-width:0}
+.chead{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);background:rgba(7,11,21,.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);flex:0 0 auto}
+.back{width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:rgba(10,18,38,.8);display:grid;place-items:center;transition:.18s;flex:0 0 auto}
+.back:hover{border-color:var(--line2)}
+.back svg{width:19px;height:19px;stroke-width:2.6}
+.chplate{position:relative;width:44px;height:44px;border-radius:14px;flex:0 0 auto;display:grid;place-items:center;background:linear-gradient(145deg,rgba(31,107,255,.28),rgba(31,107,255,.05));border:1px solid var(--line2);color:var(--cyan);box-shadow:0 0 24px rgba(31,107,255,.28)}
+.chplate svg{width:25px;height:25px;stroke-width:3}
+.chplate img{position:absolute;inset:16%;width:68%;height:68%;object-fit:contain}
+.ctitle{font-family:var(--fd);font-weight:800;font-style:italic;font-size:20px;line-height:1.15}
+.csub{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);font-weight:600}
+.chead .me{margin-left:auto;display:none}
+
+.msgs{flex:1;overflow-y:auto;padding:20px 18px;scroll-behavior:smooth;background:radial-gradient(600px 300px at 50% 0%,rgba(31,107,255,.07),transparent 70%)}
+.msgs-inner{width:100%;max-width:800px;margin:0 auto;display:flex;flex-direction:column}
+.row{display:flex;gap:10px;align-items:flex-end;margin-top:12px}
+.row.same{margin-top:3px}
 .row.me{flex-direction:row-reverse}
-.row .avatar{width:32px;height:32px;font-size:13px}
+.row .avatar{width:34px;height:34px;font-size:14px}
 .row.same .avatar{visibility:hidden}
-.bubble-wrap{max-width:min(78%,520px);display:flex;flex-direction:column;gap:3px}
-.row.me .bubble-wrap{align-items:flex-end}
-.who{font-size:12px;font-weight:700;margin-left:4px}
-.bubble{padding:9px 13px;border-radius:16px;background:var(--card2);border:1px solid var(--line);font-size:15px;word-wrap:break-word;overflow-wrap:anywhere;white-space:pre-wrap;border-bottom-left-radius:5px}
-.row.me .bubble{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff;border-bottom-left-radius:16px;border-bottom-right-radius:5px}
-.time{font-size:11px;color:var(--muted);margin:0 6px}
-.day{align-self:center;font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--line);padding:4px 12px;border-radius:999px;margin:14px 0 4px}
-.chat-empty{margin:auto;text-align:center;color:var(--muted);padding:30px}
-.chat-empty .big{font-size:44px;margin-bottom:8px}
-.composer{padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg2);flex:0 0 auto}
-.composer-inner{max-width:780px;margin:0 auto;display:flex;gap:10px;align-items:center}
-.composer input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 16px;outline:none;font-size:15px;transition:.15s}
-.composer input:focus{border-color:var(--accent)}
-.send{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:18px;color:#fff;flex:0 0 auto;transition:.15s}
-.send:hover{filter:brightness(1.1)}
-.send:disabled{opacity:.45;cursor:default}
+.bwrap{max-width:min(78%,540px);display:flex;flex-direction:column;gap:3px;min-width:0}
+.row.me .bwrap{align-items:flex-end}
+.who{font-size:12.5px;font-weight:800;margin-left:4px}
+.bubble{padding:10px 14px;border-radius:18px 18px 18px 6px;background:var(--panel2);border:1px solid var(--line);font-size:15px;word-wrap:break-word;overflow-wrap:anywhere;white-space:pre-wrap}
+.row.me .bubble{background:linear-gradient(135deg,#2f7dff,#0b4fd6);border-color:transparent;color:#fff;border-radius:18px 18px 6px 18px;box-shadow:0 8px 26px rgba(31,107,255,.3)}
+.time{font-size:11px;color:#5d6c8f;margin:0 6px;font-weight:600}
+.day{align-self:center;font-size:12px;font-weight:700;color:#8aa6d6;background:rgba(10,18,38,.9);border:1px solid var(--line);padding:5px 14px;border-radius:999px;margin:20px 0 6px}
+.cempty{margin:auto;text-align:center;color:var(--muted);padding:50px 20px}
+.cempty .plate{margin:0 auto 18px;width:84px;height:84px;border-radius:26px}
+.cempty b{display:block;font-family:var(--fd);font-style:italic;font-weight:800;font-size:20px;color:#fff;margin-bottom:4px}
 
-/* ---------- Auth ---------- */
-#auth{position:fixed;inset:0;display:grid;place-items:center;padding:20px;overflow-y:auto;background:radial-gradient(80% 60% at 20% 0%,rgba(124,92,255,.22),transparent 60%),radial-gradient(70% 60% at 100% 100%,rgba(79,139,255,.18),transparent 60%),var(--bg);z-index:10}
-.auth-card{width:100%;max-width:410px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
-.auth-card .brand{justify-content:center;margin-bottom:6px;font-size:22px}
-.auth-card .tag{text-align:center;color:var(--muted);font-size:14px;margin-bottom:22px}
-.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:20px}
-.tabs button{padding:10px;border-radius:9px;font-weight:600;font-size:14px;color:var(--muted);transition:.15s}
-.tabs button.active{background:var(--card2);color:var(--text)}
+.composer{padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(7,11,21,.85);flex:0 0 auto}
+.cin{max-width:800px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.cin input{flex:1;min-width:0;height:50px;padding:0 18px;border-radius:16px;background:rgba(10,18,38,.9);border:1px solid var(--line);outline:none;font-size:15px;transition:.18s}
+.cin input::placeholder{color:#5d6c8f}
+.cin input:focus{border-color:var(--blue2);box-shadow:0 0 0 4px rgba(31,107,255,.16)}
+.send{width:50px;height:50px;border-radius:16px;flex:0 0 auto;display:grid;place-items:center;background:linear-gradient(135deg,#3a93ff,#1f6bff);box-shadow:0 8px 24px rgba(31,107,255,.5);transition:.18s}
+.send:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.send:active{transform:scale(.95)}
+.send svg{width:22px;height:22px;stroke-width:2.3;color:#fff}
+
+/* ---------- auth ---------- */
+#auth{position:fixed;inset:0;z-index:5;overflow-y:auto}
+.auth-wrap{min-height:100%;display:grid;grid-template-columns:1fr;align-items:center;gap:20px;max-width:1120px;margin:0 auto;padding:28px 20px}
+.auth-hero{text-align:center}
+.auth-logo{width:min(260px,62vw);height:auto;margin:0 auto;display:block;filter:drop-shadow(0 0 40px rgba(31,107,255,.4))}
+.feats{display:none;list-style:none;margin-top:10px;gap:14px;flex-direction:column;text-align:left;max-width:400px;margin-left:auto;margin-right:auto}
+.feats li{display:flex;gap:14px;align-items:center;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:rgba(10,18,38,.6)}
+.fi{width:42px;height:42px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;background:rgba(31,107,255,.14);border:1px solid var(--line2);color:var(--cyan)}
+.fi svg{width:22px;height:22px;stroke-width:3}
+.feats b{display:block;font-weight:800;font-size:14.5px}
+.feats span.s{font-size:13px;color:var(--muted)}
+.auth-card{width:100%;max-width:430px;margin:0 auto;padding:30px 28px;border-radius:26px;background:linear-gradient(180deg,rgba(14,24,50,.92),rgba(8,13,26,.96));border:1px solid var(--line2);box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 80px rgba(31,107,255,.14)}
+.auth-card h2{font-family:var(--fd);font-weight:900;font-style:italic;font-size:28px;letter-spacing:-.01em;line-height:1.1}
+.auth-card .sub{color:var(--muted);font-size:14px;margin:6px 0 20px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:14px;background:rgba(4,6,12,.7);border:1px solid var(--line);margin-bottom:20px}
+.tabs button{height:40px;border-radius:10px;font-weight:800;font-size:14px;color:var(--muted);transition:.2s}
+.tabs button.active{color:#fff;background:linear-gradient(135deg,#2f7dff,#0b4fd6);box-shadow:0 6px 18px rgba(31,107,255,.4)}
 .field{margin-bottom:14px}
-.field label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
-.field input{width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:13px 14px;outline:none;font-size:15px;transition:.15s}
-.field input:focus{border-color:var(--accent)}
-.primary{width:100%;padding:14px;border-radius:12px;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));margin-top:6px;transition:.15s}
-.primary:hover{filter:brightness(1.1)}
-.primary:disabled{opacity:.6;cursor:default}
-.err{color:var(--danger);font-size:13px;margin-top:12px;text-align:center;min-height:18px}
+.field label{display:block;font-size:12.5px;font-weight:800;letter-spacing:.03em;color:#9fb0d3;margin-bottom:7px}
+.inp{position:relative}
+.inp>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke-width:2.4;color:#5d6c8f;pointer-events:none}
+.inp input{width:100%;height:50px;padding:0 46px 0 44px;border-radius:14px;background:rgba(4,6,12,.75);border:1px solid var(--line);outline:none;font-size:15px;transition:.18s}
+.inp input::placeholder{color:#4d5b7c}
+.inp input:focus{border-color:var(--blue2);box-shadow:0 0 0 4px rgba(31,107,255,.16)}
+.inp .eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:#5d6c8f}
+.inp .eye:hover{color:#fff}
+.inp .eye svg{position:static;transform:none;width:19px;height:19px;stroke-width:2.2}
+.primary{width:100%;height:52px;margin-top:8px;border-radius:15px;font-weight:800;font-size:15.5px;color:#fff;background:linear-gradient(135deg,#3a93ff,#1f6bff 55%,#0b4fd6);box-shadow:0 12px 34px rgba(31,107,255,.5);transition:.2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.primary:disabled{opacity:.6;cursor:default;transform:none}
+.primary svg{width:19px;height:19px;stroke-width:2.6}
+.err{color:#ff8a9b;font-size:13px;font-weight:600;margin-top:14px;text-align:center;min-height:19px}
 
-/* ---------- Setup warning ---------- */
+/* ---------- misc ---------- */
 .setup{max-width:520px;text-align:center}
-.setup h2{margin-bottom:10px}
-.setup p{color:var(--muted);font-size:14px}
-.setup code{background:var(--bg2);padding:2px 7px;border-radius:6px;color:var(--text);font-size:13px}
-
-.spinner{width:22px;height:22px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:40px auto}
+.spinner{width:30px;height:30px;border:3px solid rgba(74,140,255,.2);border-top-color:var(--blue2);border-radius:50%;animation:spin .7s linear infinite;margin:40px auto}
 @keyframes spin{to{transform:rotate(360deg)}}
-::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:#2a3250;border-radius:8px}::-webkit-scrollbar-track{background:transparent}
+#boot{position:fixed;inset:0;z-index:9;display:grid;place-items:center}
+#boot img{width:84px;height:84px;object-fit:contain;filter:drop-shadow(0 0 28px rgba(31,107,255,.7));animation:breathe 1.6s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.08);opacity:.8}}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:20;padding:12px 18px;border-radius:14px;background:#0d1832;border:1px solid var(--line2);box-shadow:0 14px 40px rgba(0,0,0,.6);font-weight:700;font-size:14px;animation:rise .3s both}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#1b2a4d;border-radius:8px}::-webkit-scrollbar-track{background:transparent}
 
-@media (max-width:560px){
-  .topbar{padding:12px 14px}
-  .uname{display:none}
-  .container{padding:20px 14px 50px}
-  .grid{grid-template-columns:1fr 1fr;gap:10px}
-  .game{padding:14px;min-height:130px}
-  .game-ico{width:44px;height:44px;font-size:22px}
-  .game-name{font-size:15px}
-  .bubble-wrap{max-width:84%}
+/* ---------- responsive ---------- */
+@media (min-width:960px){
+  #chat{grid-template-columns:300px 1fr}
+  .rail{display:flex}
+  .back{display:none}
+  .auth-wrap{grid-template-columns:1.05fr 1fr;gap:56px;padding:40px 32px}
+  .auth-logo{width:min(440px,100%)}
+  .feats{display:flex}
 }
+@media (max-width:959px){
+  .in-chat .topbar{display:none}
+  .chead .me{display:grid}
+}
+@media (max-width:600px){
+  .topbar{padding:0 14px;height:62px}
+  .uname{display:none}
+  .chip{padding:4px}
+  .wm{font-size:21px}
+  .container{padding:0 14px 60px}
+  .hero{padding:34px 0 4px}
+  .hero::after{width:230px;height:230px;right:-60px;top:-20px}
+  .hero p{font-size:14.5px}
+  .grid{grid-template-columns:1fr 1fr;gap:11px}
+  .card{aspect-ratio:auto;min-height:196px;padding:13px;border-radius:18px;gap:8px}
+  .plate{width:76px;height:76px;border-radius:23px}
+  .plate svg{width:40px;height:40px}
+  .card-name{font-size:16px}
+  .card-sub{display:none}
+  .go{width:34px;height:34px;border-radius:11px}
+  .card-tag{font-size:10px;padding:3px 8px}
+  .bwrap{max-width:84%}
+  .auth-card{padding:24px 20px;border-radius:22px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
-<div id="boot" style="height:100dvh;display:grid;place-items:center"><div class="spinner"></div></div>
+<div id="boot"><img src="mark.png" alt=""></div>
 
-<!-- Auth -->
+<!-- ============ AUTH ============ -->
 <div id="auth" class="hidden">
-  <div class="auth-card">
-    <div class="brand"><div class="brand-logo">🎮</div>ChatAze</div>
-    <p class="tag">Oyunçuları tap, birlikdə oyna</p>
-    <div class="tabs">
-      <button id="tabLogin" class="active" type="button">Giriş</button>
-      <button id="tabReg" type="button">Qeydiyyat</button>
-    </div>
-    <form id="authForm" novalidate>
-      <div class="field hidden" id="fName">
-        <label for="inName">İstifadəçi adı</label>
-        <input id="inName" type="text" maxlength="20" autocomplete="nickname" placeholder="məs. Elvin_Pro">
+  <div class="auth-wrap">
+    <section class="auth-hero">
+      <img class="auth-logo" src="logo.png" alt="ChatAze">
+      <ul class="feats">
+        <li><span class="fi"><svg class="em" viewBox="0 0 64 64"><path d="M10 14h44a4 4 0 0 1 4 4v22a4 4 0 0 1-4 4H30L16 56V44h-6a4 4 0 0 1-4-4V18a4 4 0 0 1 4-4z"/></svg></span><div><b>Hər oyuna ayrıca çat otağı</b><span class="s">PUBG-dən FIFA-ya qədər 10 oyun</span></div></li>
+        <li><span class="fi"><svg class="em" viewBox="0 0 64 64"><path d="M36 6 14 36h16l-4 22 24-32H34z"/></svg></span><div><b>Mesajlar canlı gəlir</b><span class="s">Səhifəni yeniləmədən yaz, oxu, cavab ver</span></div></li>
+        <li><span class="fi"><svg class="em" viewBox="0 0 64 64"><circle cx="24" cy="22" r="10"/><path d="M6 54c0-11 8-18 18-18s18 7 18 18"/><circle cx="46" cy="24" r="7"/><path d="M46 38c8 0 14 5 14 14"/></svg></span><div><b>Komandanı tap</b><span class="s">Eyni oyunu oynayanlarla tanış ol</span></div></li>
+      </ul>
+    </section>
+    <section class="auth-card">
+      <h2 id="authTitle">Xoş gəldin</h2>
+      <p class="sub" id="authSub">Hesabınla daxil ol və oyun otağına qoşul.</p>
+      <div class="tabs">
+        <button id="tabLogin" class="active" type="button">Giriş</button>
+        <button id="tabReg" type="button">Qeydiyyat</button>
       </div>
-      <div class="field">
-        <label for="inEmail">E-poçt</label>
-        <input id="inEmail" type="email" autocomplete="email" placeholder="sen@example.com">
-      </div>
-      <div class="field">
-        <label for="inPass">Şifrə</label>
-        <input id="inPass" type="password" autocomplete="current-password" placeholder="Ən azı 6 simvol">
-      </div>
-      <button class="primary" id="authBtn" type="submit">Daxil ol</button>
-      <div class="err" id="authErr"></div>
-    </form>
+      <form id="authForm" novalidate>
+        <div class="field hidden" id="fName">
+          <label for="inName">İSTİFADƏÇİ ADI</label>
+          <div class="inp">
+            <svg class="em" viewBox="0 0 64 64"><circle cx="32" cy="22" r="12"/><path d="M8 58c0-13 10-22 24-22s24 9 24 22"/></svg>
+            <input id="inName" type="text" maxlength="20" autocomplete="nickname" placeholder="məs. Elvin_Pro">
+          </div>
+        </div>
+        <div class="field">
+          <label for="inEmail">E-POÇT</label>
+          <div class="inp">
+            <svg class="em" viewBox="0 0 64 64"><rect x="6" y="12" width="52" height="40" rx="6"/><path d="m8 18 24 18 24-18"/></svg>
+            <input id="inEmail" type="email" autocomplete="email" placeholder="sen@example.com">
+          </div>
+        </div>
+        <div class="field">
+          <label for="inPass">ŞİFRƏ</label>
+          <div class="inp">
+            <svg class="em" viewBox="0 0 64 64"><rect x="10" y="28" width="44" height="30" rx="6"/><path d="M20 28V20a12 12 0 0 1 24 0v8"/></svg>
+            <input id="inPass" type="password" autocomplete="current-password" placeholder="Ən azı 6 simvol">
+            <button class="eye" id="eye" type="button" aria-label="Şifrəni göstər"><svg class="em" viewBox="0 0 64 64"><path d="M4 32S15 12 32 12s28 20 28 20-11 20-28 20S4 32 4 32z"/><circle cx="32" cy="32" r="8"/></svg></button>
+          </div>
+        </div>
+        <button class="primary" id="authBtn" type="submit"><span id="authBtnTxt">Daxil ol</span><svg class="em" viewBox="0 0 64 64"><path d="M10 32h44M36 14l18 18-18 18"/></svg></button>
+        <div class="err" id="authErr"></div>
+      </form>
+    </section>
   </div>
 </div>
 
-<!-- App -->
+<!-- ============ APP ============ -->
 <div id="app" class="hidden">
   <header class="topbar">
-    <div class="brand"><div class="brand-logo">🎮</div>ChatAze</div>
-    <div class="userbox">
+    <div class="brand" id="brand"><img src="mark.png" alt=""><span class="wm">Chat<b>Aze</b></span></div>
+    <div class="chip">
       <div class="avatar" id="meAvatar"></div>
       <span class="uname" id="meName"></span>
-      <button class="btn-ghost" id="logout" type="button">Çıxış</button>
+      <button class="iconbtn" id="logout" type="button" aria-label="Çıxış" title="Çıxış"><svg class="em" viewBox="0 0 64 64"><path d="M26 8H12a4 4 0 0 0-4 4v40a4 4 0 0 0 4 4h14M42 18l14 14-14 14M56 32H24"/></svg></button>
     </div>
   </header>
 
   <main id="home">
     <div class="container">
-      <div class="hero">
-        <h1>Oyununu seç 👇</h1>
-        <p>Oyuna toxun, çat otağı açılsın. Orada oyunçuları tapıb birlikdə oynaya bilərsən.</p>
-      </div>
+      <section class="hero">
+        <span class="eyebrow"><i class="live"></i>Oyunçular onlayndır</span>
+        <h1>Oyununu seç.<br><em>Komandanı tap.</em></h1>
+        <p>Oyuna toxun, çat otağı açılsın. Orada eyni oyunu oynayanlarla tanış ol və birlikdə oyna.</p>
+        <div class="stats" id="stats"></div>
+      </section>
       <div class="cats" id="cats"></div>
       <div class="grid" id="grid"></div>
     </div>
   </main>
 
   <section id="chat" class="hidden">
-    <div class="chat-head">
-      <button class="back" id="back" type="button" aria-label="Geri">←</button>
-      <div class="chat-ico" id="chatIco"></div>
-      <div>
-        <div class="chat-title" id="chatTitle"></div>
-        <div class="chat-sub">Ümumi çat otağı</div>
+    <aside class="rail">
+      <div class="rail-top">
+        <button class="rail-home" id="railHome" type="button"><svg class="em" viewBox="0 0 64 64"><rect x="8" y="8" width="20" height="20" rx="5"/><rect x="36" y="8" width="20" height="20" rx="5"/><rect x="8" y="36" width="20" height="20" rx="5"/><rect x="36" y="36" width="20" height="20" rx="5"/></svg>Bütün oyunlar</button>
       </div>
+      <div class="rail-list" id="railList"></div>
+    </aside>
+    <div class="cmain">
+      <div class="chead">
+        <button class="back" id="back" type="button" aria-label="Geri"><svg class="em" viewBox="0 0 64 64"><path d="M54 32H10M28 14 10 32l18 18"/></svg></button>
+        <div class="chplate" id="chPlate"></div>
+        <div>
+          <div class="ctitle" id="chTitle"></div>
+          <div class="csub"><i class="live"></i>Canlı çat otağı</div>
+        </div>
+        <div class="avatar me" id="meAvatar2"></div>
+      </div>
+      <div class="msgs" id="msgs"><div class="msgs-inner" id="msgsInner"></div></div>
+      <form class="composer" id="composer" autocomplete="off">
+        <div class="cin">
+          <input id="msgInput" type="text" maxlength="500" placeholder="Mesaj yaz..." enterkeyhint="send">
+          <button class="send" id="sendBtn" type="submit" aria-label="Göndər"><svg class="em" viewBox="0 0 64 64"><path d="M58 6 28 36M58 6 40 58 28 36 6 24z"/></svg></button>
+        </div>
+      </form>
     </div>
-    <div class="msgs" id="msgs"><div class="msgs-inner" id="msgsInner"></div></div>
-    <form class="composer" id="composer" autocomplete="off">
-      <div class="composer-inner">
-        <input id="msgInput" type="text" maxlength="500" placeholder="Mesaj yaz..." enterkeyhint="send">
-        <button class="send" id="sendBtn" type="submit" aria-label="Göndər">➤</button>
-      </div>
-    </form>
   </section>
 </div>
 
@@ -203,9 +345,6 @@ import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWith
 import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-/* ============================================================
-   FIREBASE AÇARLARI — bura öz açarlarını yapışdır (SETUP.md-ə bax)
-   ============================================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyDTOSWmHMRk13RdA1kPsZEX96xapBQf-xI",
   authDomain: "chataze-46ce9.firebaseapp.com",
@@ -215,32 +354,51 @@ const firebaseConfig = {
   appId: "1:469569192344:web:8bc5cc09dd4729912f6bed"
 };
 
-/* ---------- Data ---------- */
+/* ============ Emblemlər (özümüz çəkdiyimiz ümumi ikonlar) ============ */
+const EM = {
+  parachute:'<path d="M8 28a24 20 0 0 1 48 0"/><path d="M8 28q6 6 12 0q6 6 12 0q6 6 12 0q6 6 12 0"/><path d="M14 31 32 52M50 31 32 52M32 34v18"/><rect x="28" y="52" width="8" height="6" rx="1.5"/>',
+  crosshair:'<circle cx="32" cy="32" r="17"/><path d="M32 6v14M32 44v14M6 32h14M44 32h14"/><circle cx="32" cy="32" r="2.4" fill="currentColor"/>',
+  bomb:'<circle cx="28" cy="39" r="17"/><path d="M40 27l6-6"/><path d="M46 21q3-10 12-5"/><path d="M56 7v5M61 12h-5"/><path d="M19 37a10 10 0 0 1 8-8"/>',
+  pistol:'<path d="M8 22h42v11H36l-4 8v13H20V33H8z"/><path d="M50 22v-5h-8"/><path d="M26 33v-4"/>',
+  shield:'<path d="M32 6l20 7v16c0 14-9 23-20 29C21 52 12 43 12 29V13z"/><path d="M32 21l3.6 7.4 8 1.2-5.8 5.6 1.4 8L32 39.4l-7.2 3.8 1.4-8-5.8-5.6 8-1.2z"/>',
+  cube:'<path d="M32 6l22 12v28L32 58 10 46V18z"/><path d="M10 18l22 12 22-12M32 30v28"/>',
+  star:'<path d="M32 5l7.6 17.2 18.6 1.8-14.1 12.3 4.2 18.2L32 45.4 15.7 54.5l4.2-18.2L5.8 24l18.6-1.8z"/>',
+  ball:'<circle cx="32" cy="32" r="24"/><path d="M32 20l11 8-4 13H25l-4-13z"/><path d="M32 20V8M43 28l12-4M39 41l8 10M25 41l-8 10M21 28L9 24"/>',
+  trophy:'<path d="M20 8h24v14a12 12 0 0 1-24 0z"/><path d="M20 12h-8v4a8 8 0 0 0 8 8M44 12h8v4a8 8 0 0 1-8 8"/><path d="M32 34v10M25 44h14v12H25zM21 56h22"/>',
+  stairs:'<path d="M8 56V44h12V32h12V20h12V8h12v48z"/><path d="M20 44v12M32 32v24M44 20v36"/>',
+  compass:'<circle cx="32" cy="32" r="24"/><path d="M44 20 37 37 20 44l7-17z"/>',
+  grid:'<rect x="8" y="8" width="20" height="20" rx="5"/><rect x="36" y="8" width="20" height="20" rx="5"/><rect x="8" y="36" width="20" height="20" rx="5"/><rect x="36" y="36" width="20" height="20" rx="5"/>'
+};
+const svg = k => `<svg class="em" viewBox="0 0 64 64" aria-hidden="true">${EM[k]}</svg>`;
+
+/* ============ Məlumat ============ */
 const CATEGORIES = [
-  { id:'all',    name:'Hamısı',          icon:'✨' },
-  { id:'br',     name:'Battle Royale',   icon:'🪂' },
-  { id:'shooter',name:'Şuter',           icon:'🎯' },
-  { id:'sandbox',name:'Macəra',          icon:'🧭' },
-  { id:'sport',  name:'Futbol',          icon:'⚽' },
+  { id:'all',    name:'Hamısı',        em:'grid' },
+  { id:'br',     name:'Battle Royale', em:'parachute' },
+  { id:'shooter',name:'Şuter',         em:'crosshair' },
+  { id:'sandbox',name:'Macəra',        em:'compass' },
+  { id:'sport',  name:'Futbol',        em:'ball' },
 ];
 const GAMES = [
-  { id:'pubg-mobile', name:'PUBG Mobile',        cat:'br',     icon:'🪂', g1:'#f5a524', g2:'#d9480f' },
-  { id:'fortnite',    name:'Fortnite',           cat:'br',     icon:'🏗️', g1:'#a855f7', g2:'#3b82f6' },
-  { id:'valorant',    name:'Valorant',           cat:'shooter',icon:'🎯', g1:'#ff4655', g2:'#9f1239' },
-  { id:'cs2',         name:'CS2',                cat:'shooter',icon:'💣', g1:'#f59e0b', g2:'#1d4ed8' },
-  { id:'standoff2',   name:'Standoff 2',         cat:'shooter',icon:'🔫', g1:'#ef4444', g2:'#f59e0b' },
-  { id:'codm',        name:'Call of Duty Mobile',cat:'shooter',icon:'🎖️', g1:'#84cc16', g2:'#14532d' },
-  { id:'minecraft',   name:'Minecraft',          cat:'sandbox',icon:'⛏️', g1:'#22c55e', g2:'#92400e' },
-  { id:'brawl-stars', name:'Brawl Stars',        cat:'sandbox',icon:'⭐', g1:'#facc15', g2:'#ea580c' },
-  { id:'efootball',   name:'eFootball',          cat:'sport',  icon:'⚽', g1:'#3b82f6', g2:'#0e7490' },
-  { id:'fifa',        name:'FIFA',               cat:'sport',  icon:'🏆', g1:'#10b981', g2:'#1e40af' },
+  { id:'pubg-mobile', name:'PUBG Mobile',         cat:'br',     em:'parachute', plat:'Mobil' },
+  { id:'fortnite',    name:'Fortnite',            cat:'br',     em:'stairs',    plat:'PC · Konsol · Mobil' },
+  { id:'valorant',    name:'Valorant',            cat:'shooter',em:'crosshair', plat:'PC' },
+  { id:'cs2',         name:'CS2',                 cat:'shooter',em:'bomb',      plat:'PC' },
+  { id:'standoff2',   name:'Standoff 2',          cat:'shooter',em:'pistol',    plat:'Mobil' },
+  { id:'codm',        name:'Call of Duty Mobile', cat:'shooter',em:'shield',    plat:'Mobil' },
+  { id:'minecraft',   name:'Minecraft',           cat:'sandbox',em:'cube',      plat:'PC · Mobil' },
+  { id:'brawl-stars', name:'Brawl Stars',         cat:'sandbox',em:'star',      plat:'Mobil' },
+  { id:'efootball',   name:'eFootball',           cat:'sport',  em:'ball',      plat:'PC · Mobil' },
+  { id:'fifa',        name:'FIFA',                cat:'sport',  em:'trophy',    plat:'PC · Konsol' },
 ];
 const gameById = id => GAMES.find(g => g.id === id);
+const catById = id => CATEGORIES.find(c => c.id === id);
 
-/* ---------- Helpers ---------- */
+/* ============ Köməkçilər ============ */
 const $ = id => document.getElementById(id);
-const COLORS = ['#7c5cff','#4f8bff','#e8590c','#2f9e44','#d6336c','#0c8599','#f08c00','#9c36b5','#e03131','#1c7ed6'];
-const colorFor = s => { let h=0; for (const c of String(s)) h=(h*31+c.charCodeAt(0))>>>0; return COLORS[h%COLORS.length]; };
+const AV  = ['#1f6bff','#0ea5e9','#2563eb','#0891b2','#3b82f6','#4f46e5','#0284c7','#1d4ed8'];
+const NAME= ['#6cbcff','#5fd0ff','#8fb4ff','#4fe0e8','#7aa8ff','#a3a8ff','#58b8ff','#7fa2ff'];
+const hashOf = s => { let h=0; for (const c of String(s)) h=(h*31+c.charCodeAt(0))>>>0; return h; };
 const initial = n => (n||'?').trim().charAt(0).toUpperCase();
 const pad = n => String(n).padStart(2,'0');
 const hhmm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -252,12 +410,29 @@ function dayLabel(d){
   if(same(d,y)) return 'Dünən';
   return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
-function setAvatar(el,name,uid){ el.textContent=initial(name); el.style.background=colorFor(uid||name); }
+function setAvatar(el,name,uid){
+  el.textContent = initial(name);
+  const c = AV[hashOf(uid||name)%AV.length];
+  el.style.background = `linear-gradient(135deg,${c},#0a2a78)`;
+}
+let toastT;
+function toast(msg){
+  document.querySelector('.toast')?.remove();
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t);
+  clearTimeout(toastT); toastT=setTimeout(()=>t.remove(),3200);
+}
+/* Oyun loqosu: games/<id>.png faylı varsa onu göstərir, yoxsa öz emblemimizi */
+function fillPlate(el, g){
+  el.innerHTML = svg(g.em);
+  const img = new Image();
+  img.alt = '';
+  img.onload = () => { el.innerHTML = ''; el.appendChild(img); img.style.position='absolute'; };
+  img.src = `games/${g.id}.png`;
+}
 
-/* ---------- Setup check ---------- */
+/* ============ Quraşdırma yoxlaması ============ */
 if (firebaseConfig.apiKey.startsWith('BURA')) {
-  $('boot').innerHTML = `<div class="auth-card setup"><h2>⚙️ Firebase açarları lazımdır</h2>
-  <p><code>index.html</code> faylında <code>firebaseConfig</code> hissəsinə öz Firebase açarlarını yapışdır. Addımlar <code>SETUP.md</code> faylındadır.</p></div>`;
+  $('boot').innerHTML = '<div class="auth-card setup"><h2>Firebase açarları lazımdır</h2><p class="sub">index.html faylında firebaseConfig hissəsini doldur.</p></div>';
   throw new Error('Firebase config yoxdur');
 }
 
@@ -265,19 +440,22 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ---------- Auth UI ---------- */
+/* ============ Giriş / Qeydiyyat ============ */
 let mode = 'login';
 function setMode(m){
   mode = m;
   $('tabLogin').classList.toggle('active', m==='login');
   $('tabReg').classList.toggle('active', m==='reg');
   $('fName').classList.toggle('hidden', m==='login');
-  $('authBtn').textContent = m==='login' ? 'Daxil ol' : 'Hesab yarat';
+  $('authBtnTxt').textContent = m==='login' ? 'Daxil ol' : 'Hesab yarat';
+  $('authTitle').textContent = m==='login' ? 'Xoş gəldin' : 'Komandaya qoşul';
+  $('authSub').textContent = m==='login' ? 'Hesabınla daxil ol və oyun otağına qoşul.' : '30 saniyəyə pulsuz hesab yarat.';
   $('inPass').autocomplete = m==='login' ? 'current-password' : 'new-password';
   $('authErr').textContent = '';
 }
 $('tabLogin').onclick = () => setMode('login');
 $('tabReg').onclick = () => setMode('reg');
+$('eye').onclick = () => { const p=$('inPass'); p.type = p.type==='password' ? 'text' : 'password'; };
 
 const ERR = {
   'auth/invalid-email':'E-poçt ünvanı düzgün deyil.',
@@ -289,9 +467,9 @@ const ERR = {
   'auth/wrong-password':'Şifrə səhvdir.',
   'auth/too-many-requests':'Çox cəhd oldu. Bir az sonra yenidən yoxla.',
   'auth/network-request-failed':'İnternet bağlantısını yoxla.',
-  'auth/operation-not-allowed':'E-poçt/şifrə girişi Firebase-də aktiv edilməyib.'
+  'auth/operation-not-allowed':'E-poçt/şifrə girişi Firebase-də aktiv edilməyib.',
+  'auth/unauthorized-domain':'Bu domen Firebase-də icazəli deyil (Authorized domains).'
 };
-
 $('authForm').addEventListener('submit', async e => {
   e.preventDefault();
   const email = $('inEmail').value.trim(), pass = $('inPass').value, name = $('inName').value.trim();
@@ -313,50 +491,73 @@ $('authForm').addEventListener('submit', async e => {
     err.textContent = ERR[ex.code] || 'Xəta baş verdi. Yenidən cəhd et.';
   } finally { $('authBtn').disabled = false; }
 });
-
 $('logout').onclick = () => signOut(auth);
 
-/* ---------- Home ---------- */
+/* ============ Ana səhifə ============ */
 let activeCat = 'all';
+function renderStats(){
+  $('stats').innerHTML = `<div class="stat"><b>${GAMES.length}</b>oyun</div><div class="stat"><b>${CATEGORIES.length-1}</b>kateqoriya</div><div class="stat"><b>Canlı</b>çat otaqları</div>`;
+}
 function renderCats(){
-  $('cats').innerHTML = '';
+  const box = $('cats'); box.innerHTML = '';
   for (const c of CATEGORIES) {
     const n = c.id==='all' ? GAMES.length : GAMES.filter(g=>g.cat===c.id).length;
     const b = document.createElement('button');
     b.type='button'; b.className='cat'+(c.id===activeCat?' active':'');
-    b.innerHTML = `<span>${c.icon}</span><span>${c.name}</span><span class="count">${n}</span>`;
+    b.innerHTML = `${svg(c.em)}<span>${c.name}</span><span class="n">${n}</span>`;
     b.onclick = () => { activeCat=c.id; renderCats(); renderGames(); };
-    $('cats').appendChild(b);
+    box.appendChild(b);
   }
 }
 function renderGames(){
   const list = activeCat==='all' ? GAMES : GAMES.filter(g=>g.cat===activeCat);
   const grid = $('grid'); grid.innerHTML='';
-  if (!list.length) { grid.innerHTML='<div class="empty">Bu kateqoriyada oyun yoxdur.</div>'; return; }
-  for (const g of list) {
+  list.forEach((g,i) => {
     const b = document.createElement('button');
-    b.type='button'; b.className='game';
-    b.style.setProperty('--g1',g.g1); b.style.setProperty('--g2',g.g2);
-    b.innerHTML = `<div class="game-ico">${g.icon}</div>
-      <div class="game-name"></div>
-      <div class="game-meta"><span>Çat otağı</span><span class="enter">Daxil ol →</span></div>`;
-    b.querySelector('.game-name').textContent = g.name;
+    b.type='button'; b.className='card'; b.style.animationDelay = (i*45)+'ms';
+    b.innerHTML = `<div class="card-top"><span class="card-no">${pad(GAMES.indexOf(g)+1)}</span><span class="card-tag"></span></div>
+      <div class="card-art"><div class="plate"></div></div>
+      <div class="card-bot"><div><div class="card-name"></div><div class="card-sub"></div></div>
+      <span class="go"><svg class="em" viewBox="0 0 64 64"><path d="M10 32h44M36 14l18 18-18 18"/></svg></span></div>`;
+    b.querySelector('.card-tag').textContent = catById(g.cat).name;
+    b.querySelector('.card-name').textContent = g.name;
+    b.querySelector('.card-sub').textContent = g.plat;
+    fillPlate(b.querySelector('.plate'), g);
     b.onclick = () => { location.hash = '#/chat/'+g.id; };
     grid.appendChild(b);
+  });
+}
+
+/* ============ Yan panel (oyun siyahısı) ============ */
+function renderRail(activeId){
+  const box = $('railList'); box.innerHTML = '';
+  for (const c of CATEGORIES.filter(c=>c.id!=='all')) {
+    const h = document.createElement('div'); h.className='rgroup'; h.textContent = c.name.toUpperCase().replace('İ','İ');
+    box.appendChild(h);
+    for (const g of GAMES.filter(g=>g.cat===c.id)) {
+      const b = document.createElement('button');
+      b.type='button'; b.className='ritem'+(g.id===activeId?' active':'');
+      b.innerHTML = '<span class="rplate"></span><span class="rname"></span>';
+      b.querySelector('.rname').textContent = g.name;
+      fillPlate(b.querySelector('.rplate'), g);
+      b.onclick = () => { location.hash = '#/chat/'+g.id; };
+      box.appendChild(b);
+    }
   }
 }
 
-/* ---------- Chat ---------- */
+/* ============ Çat ============ */
 let unsub = null, currentRoom = null, lastSend = 0;
 function openChat(id){
   const g = gameById(id);
   if (!g) { location.hash = ''; return; }
   currentRoom = id;
+  $('app').classList.add('in-chat');
   $('home').classList.add('hidden');
   $('chat').classList.remove('hidden');
-  $('chatTitle').textContent = g.name;
-  const ico = $('chatIco'); ico.textContent = g.icon;
-  ico.style.background = `linear-gradient(135deg,${g.g1},${g.g2})`;
+  $('chTitle').textContent = g.name;
+  fillPlate($('chPlate'), g);
+  renderRail(id);
   const inner = $('msgsInner');
   inner.innerHTML = '<div class="spinner"></div>';
   if (unsub) unsub();
@@ -364,25 +565,28 @@ function openChat(id){
   let first = true;
   unsub = onSnapshot(q, snap => {
     const msgs = snap.docs.map(d => ({ id:d.id, ...d.data() })).reverse();
-    const nearBottom = first || (()=>{ const m=$('msgs'); return m.scrollHeight-m.scrollTop-m.clientHeight < 140; })();
-    renderMessages(msgs);
-    if (nearBottom) { const m=$('msgs'); m.style.scrollBehavior = first?'auto':'smooth'; m.scrollTop = m.scrollHeight; }
+    const m = $('msgs');
+    const nearBottom = first || (m.scrollHeight-m.scrollTop-m.clientHeight < 160);
+    renderMessages(msgs, g);
+    if (nearBottom) { m.style.scrollBehavior = first?'auto':'smooth'; m.scrollTop = m.scrollHeight; }
     first = false;
   }, () => {
-    inner.innerHTML = '<div class="chat-empty"><div class="big">⚠️</div>Mesajlar yüklənmədi. Firestore qaydalarını yoxla.</div>';
+    inner.innerHTML = '<div class="cempty"><b>Mesajlar yüklənmədi</b>Firestore qaydalarını və internet bağlantısını yoxla.</div>';
   });
-  setTimeout(()=>$('msgInput').focus(), 100);
+  setTimeout(()=>{ if (matchMedia('(min-width:960px)').matches) $('msgInput').focus(); }, 120);
 }
 function closeChat(){
   if (unsub) { unsub(); unsub=null; }
   currentRoom = null;
+  $('app').classList.remove('in-chat');
   $('chat').classList.add('hidden');
   $('home').classList.remove('hidden');
 }
-function renderMessages(msgs){
+function renderMessages(msgs, g){
   const inner = $('msgsInner'); inner.innerHTML = '';
   if (!msgs.length) {
-    inner.innerHTML = '<div class="chat-empty"><div class="big">👋</div><b>Hələ mesaj yoxdur</b><br>İlk mesajı sən yaz, oyunçuları çağır!</div>';
+    inner.innerHTML = '<div class="cempty"><div class="plate"></div><b>Hələ mesaj yoxdur</b>İlk mesajı sən yaz və oyunçuları çağır!</div>';
+    fillPlate(inner.querySelector('.plate'), g);
     return;
   }
   const me = auth.currentUser?.uid;
@@ -399,9 +603,10 @@ function renderMessages(msgs){
     const row = document.createElement('div');
     row.className = 'row'+(mine?' me':'')+(same?' same':'');
     const av = document.createElement('div'); av.className='avatar'; setAvatar(av, m.name, m.uid);
-    const wrap = document.createElement('div'); wrap.className='bubble-wrap';
+    const wrap = document.createElement('div'); wrap.className='bwrap';
     if (!same && !mine) {
-      const w = document.createElement('div'); w.className='who'; w.textContent = m.name || 'İstifadəçi'; w.style.color = colorFor(m.uid);
+      const w = document.createElement('div'); w.className='who'; w.textContent = m.name || 'İstifadəçi';
+      w.style.color = NAME[hashOf(m.uid)%NAME.length];
       wrap.appendChild(w);
     }
     const b = document.createElement('div'); b.className='bubble'; b.textContent = m.text;
@@ -418,7 +623,7 @@ $('composer').addEventListener('submit', async e => {
   const text = input.value.trim();
   const user = auth.currentUser;
   if (!text || !user || !currentRoom) return;
-  if (Date.now() - lastSend < 800) return; // spam qorunması
+  if (Date.now() - lastSend < 800) return;
   lastSend = Date.now();
   input.value = '';
   try {
@@ -430,20 +635,22 @@ $('composer').addEventListener('submit', async e => {
     });
   } catch (ex) {
     input.value = text;
-    alert('Mesaj göndərilmədi. Bağlantını yoxla.');
+    toast('Mesaj göndərilmədi. Bağlantını yoxla.');
   }
   input.focus();
 });
 $('back').onclick = () => { location.hash = ''; };
+$('railHome').onclick = () => { location.hash = ''; };
+$('brand').onclick = () => { location.hash = ''; };
 
-/* ---------- Routing ---------- */
+/* ============ Marşrut ============ */
 function route(){
   const m = location.hash.match(/^#\/chat\/([\w-]+)$/);
   if (m && auth.currentUser) openChat(m[1]); else closeChat();
 }
 window.addEventListener('hashchange', route);
 
-/* ---------- Session ---------- */
+/* ============ Sessiya ============ */
 function showApp(user){
   $('boot').classList.add('hidden');
   $('auth').classList.add('hidden');
@@ -451,7 +658,8 @@ function showApp(user){
   const name = user.displayName || user.email.split('@')[0];
   $('meName').textContent = name;
   setAvatar($('meAvatar'), name, user.uid);
-  renderCats(); renderGames(); route();
+  setAvatar($('meAvatar2'), name, user.uid);
+  renderStats(); renderCats(); renderGames(); route();
 }
 onAuthStateChanged(auth, user => {
   if (user) { showApp(user); }
