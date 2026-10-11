@@ -582,6 +582,7 @@ async function enablePush(silent){
       const perm = await Notification.requestPermission();
       if (perm !== 'granted') return toast('Bildiriş icazəsi verilmədi.');
     }
+    if (String(VAPID_KEY).startsWith('BURAYA')) { if (!silent) toast('VAPID açarı config.js faylında yazılmayıb.'); return; }
     const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
     await navigator.serviceWorker.ready;
     const token = await getToken(getMessaging(app), { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
@@ -590,7 +591,7 @@ async function enablePush(silent){
     try { localStorage.setItem('pushOn','1'); } catch (_) {}
     updatePushBtn();
     if (!silent) toast('Bildirişlər aktivdir');
-  } catch (ex) { if (!silent) toast('Bildiriş qoşulmadı.'); }
+  } catch (ex) { console.error('push', ex); if (!silent) toast('Bildiriş qoşulmadı: ' + (ex.code || ex.message || 'naməlum xəta').toString().slice(0,90)); }
 }
 $('pushBtn').onclick = () => { if ($('pushBtn').classList.contains('on')) toast('Bildirişlər artıq aktivdir.'); else enablePush(false); };
 
