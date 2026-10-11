@@ -218,6 +218,18 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .addm{display:none;margin-left:auto;height:40px;padding:0 14px;border-radius:13px;background:linear-gradient(135deg,#3a93ff,#1f6bff);font-weight:800;font-size:13px;color:#fff;align-items:center;gap:6px;flex:0 0 auto}
 .addm.show{display:flex}
 .chead .me{margin-left:0;flex:0 0 auto}
+.bellbtn{display:none;width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:rgba(10,18,38,.8);place-items:center;flex:0 0 auto;color:var(--muted);transition:.18s}
+.bellbtn.show{display:grid}
+.bellbtn svg{width:19px;height:19px;stroke-width:2.6}
+.bellbtn.on{color:#35e0a1;border-color:rgba(53,224,161,.5);background:rgba(53,224,161,.12)}
+.ndesc{font-size:14px;color:var(--muted);margin:10px 0 16px}
+.nrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-radius:14px;background:rgba(10,18,38,.8);border:1px solid var(--line)}
+.nlabel{font-weight:800;font-size:15px}
+.switch{position:relative;width:54px;height:32px;border-radius:999px;background:#1b2a4d;flex:0 0 auto;transition:.2s}
+.switch i{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:.2s}
+.switch.on{background:linear-gradient(135deg,#3a93ff,#1f6bff)}
+.switch.on i{left:25px}
+.nhint{font-size:12.5px;color:#5d6c8f;margin-top:12px}
 .card-join{margin-top:6px;font-size:11px;font-weight:800;color:#9cc7ff}
 .card-join.in{color:#35e0a1}
 .modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:16px;background:rgba(2,4,10,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -292,6 +304,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 
 <div id="boot"><img src="mark.png" alt=""></div>
 <div id="manage" class="modal hidden"><div class="mbox" id="mbox"></div></div>
+<div id="notif" class="modal hidden"><div class="mbox" id="nbox"></div></div>
 
 <!-- ============ AUTH ============ -->
 <div id="auth" class="hidden">
@@ -391,6 +404,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
           <div class="ctitle" id="chTitle"></div>
           <div class="csub"><i class="live"></i><span id="chSub">Canlı çat otağı</span></div>
         </div>
+        <button class="bellbtn" id="bellBtn" type="button" aria-label="Bildirişlər"><svg class="em" viewBox="0 0 64 64"><path d="M32 8a14 14 0 0 0-14 14v12l-6 10h40l-6-10V22A14 14 0 0 0 32 8zM26 54a6 6 0 0 0 12 0"/></svg></button>
         <button class="addm" id="manageBtn" type="button">İdarə et</button>
         <div class="avatar me" id="meAvatar2"></div>
       </div>
@@ -795,6 +809,52 @@ function renderClans(){
   if (!CLANS.length && !isAdmin()) grid.innerHTML = '<div class="cempty"><b>Hələ klan yoxdur</b>Klan istəyirsənsə admin-ə yaz.</div>';
 }
 
+/* ============ Oyun çatı bildirişi (avtomatik yadda qalır) ============ */
+let MYGAMES = [], gamesUnsub = null, notifOpen = false;
+function startMyGames(){
+  if (gamesUnsub) return;
+  gamesUnsub = onSnapshot(doc(db,'tokens',auth.currentUser.uid), s => {
+    MYGAMES = (s.exists() && s.data().games) || [];
+    updateBell(); renderNotif();
+  }, () => {});
+}
+function updateBell(){
+  const b = $('bellBtn'), g = gameById(currentRoom);
+  b.classList.toggle('show', !!g);
+  b.classList.toggle('on', !!g && MYGAMES.includes(g.id));
+}
+const pushReady = () => pushOK() && Notification.permission === 'granted' && localStorage.getItem('pushOn') === '1';
+function openNotif(){ if (!gameById(currentRoom)) return; notifOpen = true; renderNotif(); }
+function closeNotif(){ notifOpen = false; $('notif').classList.add('hidden'); }
+function renderNotif(){
+  const m = $('notif'), g = gameById(currentRoom);
+  if (!notifOpen || !g) { m.classList.add('hidden'); return; }
+  m.classList.remove('hidden');
+  const on = MYGAMES.includes(g.id);
+  const box = $('nbox'); box.innerHTML = '';
+  const head = el('div','mhead'); head.appendChild(el('div','mtitle', g.name + ' bildirişi'));
+  const x = el('button','mx','✕'); x.type='button'; x.onclick = closeNotif; head.appendChild(x); box.appendChild(head);
+  box.appendChild(el('div','ndesc', g.name + ' çatında kimsə yazanda telefonuna bildiriş gəlsin.'));
+  const row = el('div','nrow'); row.appendChild(el('span','nlabel', on ? 'Bildiriş açıqdır' : 'Bildiriş bağlıdır'));
+  const sw = el('button','switch'+(on?' on':'')); sw.type='button'; sw.setAttribute('role','switch'); sw.setAttribute('aria-checked', String(on));
+  sw.appendChild(el('i')); sw.onclick = () => toggleGame(g.id, !on);
+  row.appendChild(sw); box.appendChild(row);
+  box.appendChild(el('div','nhint','İstədiyin vaxt bağlaya bilərsən. Seçimin avtomatik yadda saxlanır, yenidən daxil olanda da qalır.'));
+}
+async function toggleGame(id, want){
+  const ref = doc(db,'tokens',auth.currentUser.uid);
+  try {
+    if (want) {
+      if (!pushReady()) { await enablePush(false); if (!pushReady()) return; }
+      await setDoc(ref, { games: arrayUnion(id) }, { merge:true });
+    } else {
+      await setDoc(ref, { games: arrayRemove(id) }, { merge:true });
+    }
+  } catch (ex) { toast('Alınmadı. Yenidən yoxla.'); }
+}
+$('bellBtn').onclick = openNotif;
+$('notif').onclick = e => { if (e.target === $('notif')) closeNotif(); };
+
 /* ============ Çat ============ */
 let unsub = null, currentRoom = null, lastSend = 0;
 function openChat(id){
@@ -805,6 +865,7 @@ function openChat(id){
   const g = clan ? { id, name:clan.name, em:'shield' } : gameById(id);
   if (!g) { location.hash = ''; return; }
   currentRoom = id;
+  closeNotif(); updateBell();
   $('app').classList.add('in-chat');
   $('home').classList.add('hidden');
   $('chat').classList.remove('hidden');
@@ -840,6 +901,7 @@ function openChat(id){
 function closeChat(){
   if (unsub) { unsub(); unsub=null; }
   currentRoom = null;
+  closeNotif(); updateBell();
   $('manageBtn').classList.remove('show');
   if (reqUnsub) { reqUnsub(); reqUnsub = null; }
   REQS = []; closeManage();
@@ -899,13 +961,12 @@ $('composer').addEventListener('submit', async e => {
       text: text.slice(0,500),
       createdAt: serverTimestamp()
     });
-    if (room.startsWith('clan-')) {
-      user.getIdToken().then(t => fetch('/api/notify', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', Authorization:'Bearer '+t },
-        body: JSON.stringify({ clanId: room.slice(5), text: text.slice(0,500) })
-      })).catch(()=>{});
-    }
+    const payload = room.startsWith('clan-') ? { clanId: room.slice(5) } : { gameId: room };
+    user.getIdToken().then(t => fetch('/api/notify', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', Authorization:'Bearer '+t },
+      body: JSON.stringify({ ...payload, text: text.slice(0,500) })
+    })).catch(()=>{});
   } catch (ex) {
     input.value = text;
     toast('Mesaj göndərilmədi. Bağlantını yoxla.');
@@ -938,13 +999,14 @@ function showApp(user){
   setDoc(doc(db,'users',user.uid), { name, nameLower:name.toLowerCase() }, { merge:true }).catch(()=>{});
   renderStats(); renderCats(); renderGames();
   startClans();
-  updatePushBtn(); enablePush(true);
+  updatePushBtn(); enablePush(true); startMyGames();
   route();
 }
 onAuthStateChanged(auth, user => {
   if (user) { showApp(user); }
   else {
     if (clansUnsub) { clansUnsub(); clansUnsub = null; CLANS = []; }
+    if (gamesUnsub) { gamesUnsub(); gamesUnsub = null; MYGAMES = []; }
     closeChat();
     $('boot').classList.add('hidden');
     $('app').classList.add('hidden');
