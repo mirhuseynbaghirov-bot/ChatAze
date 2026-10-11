@@ -126,7 +126,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .card:hover .plate.has-logo{box-shadow:0 0 56px rgba(31,107,255,.45)}
 .ctitle{font-family:var(--fd);font-weight:800;font-style:italic;font-size:20px;line-height:1.15}
 .csub{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);font-weight:600}
-.chead .me{margin-left:auto;display:none}
+.chead .me{display:none}
 
 .msgs{flex:1;overflow-y:auto;padding:20px 18px;scroll-behavior:smooth;background:radial-gradient(600px 300px at 50% 0%,rgba(31,107,255,.07),transparent 70%)}
 .msgs-inner{width:100%;max-width:800px;margin:0 auto;display:flex;flex-direction:column}
@@ -188,6 +188,11 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 .primary:disabled{opacity:.6;cursor:default;transform:none}
 .primary svg{width:19px;height:19px;stroke-width:2.6}
 .err{color:#ff8a9b;font-size:13px;font-weight:600;margin-top:14px;text-align:center;min-height:19px}
+
+/* ---------- clans ---------- */
+.addm{display:none;margin-left:auto;height:40px;padding:0 14px;border-radius:13px;background:linear-gradient(135deg,#3a93ff,#1f6bff);font-weight:800;font-size:13px;color:#fff;align-items:center;gap:6px;flex:0 0 auto}
+.addm.show{display:flex}
+.chead .me{margin-left:10px}
 
 /* ---------- misc ---------- */
 .setup{max-width:520px;text-align:center}
@@ -324,8 +329,9 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
         <div class="chplate" id="chPlate"></div>
         <div>
           <div class="ctitle" id="chTitle"></div>
-          <div class="csub"><i class="live"></i>Canlı çat otağı</div>
+          <div class="csub"><i class="live"></i><span id="chSub">Canlı çat otağı</span></div>
         </div>
+        <button class="addm" id="addMember" type="button">+ Üzv əlavə et</button>
         <div class="avatar me" id="meAvatar2"></div>
       </div>
       <div class="msgs" id="msgs"><div class="msgs-inner" id="msgsInner"></div></div>
@@ -343,7 +349,7 @@ svg.em{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp }
+import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDocs, where, updateDoc, arrayUnion }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -354,6 +360,9 @@ const firebaseConfig = {
   messagingSenderId: "469569192344",
   appId: "1:469569192344:web:8bc5cc09dd4729912f6bed"
 };
+
+/* Admin hesabının UID-si (Firebase Console → Authentication → Users → "User UID") */
+const ADMIN_UID = 'Re0iC67fnQT42JjPfCpvPda4xHH2';
 
 /* ============ Emblemlər (özümüz çəkdiyimiz ümumi ikonlar) ============ */
 const EM = {
@@ -368,7 +377,8 @@ const EM = {
   trophy:'<path d="M20 8h24v14a12 12 0 0 1-24 0z"/><path d="M20 12h-8v4a8 8 0 0 0 8 8M44 12h8v4a8 8 0 0 1-8 8"/><path d="M32 34v10M25 44h14v12H25zM21 56h22"/>',
   stairs:'<path d="M8 56V44h12V32h12V20h12V8h12v48z"/><path d="M20 44v12M32 32v24M44 20v36"/>',
   compass:'<circle cx="32" cy="32" r="24"/><path d="M44 20 37 37 20 44l7-17z"/>',
-  grid:'<rect x="8" y="8" width="20" height="20" rx="5"/><rect x="36" y="8" width="20" height="20" rx="5"/><rect x="8" y="36" width="20" height="20" rx="5"/><rect x="36" y="36" width="20" height="20" rx="5"/>'
+  grid:'<rect x="8" y="8" width="20" height="20" rx="5"/><rect x="36" y="8" width="20" height="20" rx="5"/><rect x="8" y="36" width="20" height="20" rx="5"/><rect x="36" y="36" width="20" height="20" rx="5"/>',
+  plus:'<path d="M32 10v44M10 32h44"/>'
 };
 const svg = k => `<svg class="em" viewBox="0 0 64 64" aria-hidden="true">${EM[k]}</svg>`;
 
@@ -379,6 +389,7 @@ const CATEGORIES = [
   { id:'shooter',name:'Şuter',         em:'crosshair' },
   { id:'sandbox',name:'Macəra',        em:'compass' },
   { id:'sport',  name:'Futbol',        em:'ball' },
+  { id:'clans',  name:'Klanlar',       em:'shield' },
 ];
 const GAMES = [
   { id:'pubg-mobile', name:'PUBG Mobile',         cat:'br',     em:'parachute', plat:'Mobil' },
@@ -497,12 +508,12 @@ $('logout').onclick = () => signOut(auth);
 /* ============ Ana səhifə ============ */
 let activeCat = 'all';
 function renderStats(){
-  $('stats').innerHTML = `<div class="stat"><b>${GAMES.length}</b>oyun</div><div class="stat"><b>${CATEGORIES.length-1}</b>kateqoriya</div><div class="stat"><b>Canlı</b>çat otaqları</div>`;
+  $('stats').innerHTML = `<div class="stat"><b>${GAMES.length}</b>oyun</div><div class="stat"><b>${CATEGORIES.length-2}</b>kateqoriya</div><div class="stat"><b>Canlı</b>çat otaqları</div>`;
 }
 function renderCats(){
   const box = $('cats'); box.innerHTML = '';
   for (const c of CATEGORIES) {
-    const n = c.id==='all' ? GAMES.length : GAMES.filter(g=>g.cat===c.id).length;
+    const n = c.id==='all' ? GAMES.length : c.id==='clans' ? CLANS.length : GAMES.filter(g=>g.cat===c.id).length;
     const b = document.createElement('button');
     b.type='button'; b.className='cat'+(c.id===activeCat?' active':'');
     b.innerHTML = `${svg(c.em)}<span>${c.name}</span><span class="n">${n}</span>`;
@@ -511,6 +522,7 @@ function renderCats(){
   }
 }
 function renderGames(){
+  if (activeCat==='clans') return renderClans();
   const list = activeCat==='all' ? GAMES : GAMES.filter(g=>g.cat===activeCat);
   const grid = $('grid'); grid.innerHTML='';
   list.forEach((g,i) => {
@@ -532,8 +544,8 @@ function renderGames(){
 /* ============ Yan panel (oyun siyahısı) ============ */
 function renderRail(activeId){
   const box = $('railList'); box.innerHTML = '';
-  for (const c of CATEGORIES.filter(c=>c.id!=='all')) {
-    const h = document.createElement('div'); h.className='rgroup'; h.textContent = c.name.toUpperCase().replace('İ','İ');
+  for (const c of CATEGORIES.filter(c=>c.id!=='all' && c.id!=='clans')) {
+    const h = document.createElement('div'); h.className='rgroup'; h.textContent = c.name.toUpperCase().replace('İ','İ');
     box.appendChild(h);
     for (const g of GAMES.filter(g=>g.cat===c.id)) {
       const b = document.createElement('button');
@@ -547,16 +559,89 @@ function renderRail(activeId){
   }
 }
 
+/* ============ Klanlar ============ */
+let CLANS = [], clansUnsub = null;
+const isAdmin = () => auth.currentUser?.uid === ADMIN_UID;
+
+function startClans(){
+  if (clansUnsub) return;
+  clansUnsub = onSnapshot(collection(db,'clans'), snap => {
+    CLANS = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    renderCats();
+    if (!currentRoom && activeCat==='clans') renderGames();
+    route();
+  }, () => toast('Klanlar yüklənmədi. Firestore qaydalarını yoxla.'));
+}
+async function findUser(name){
+  const s = await getDocs(query(collection(db,'users'), where('nameLower','==',name.trim().toLowerCase())));
+  return s.empty ? null : { uid:s.docs[0].id, ...s.docs[0].data() };
+}
+async function createClan(){
+  const name = prompt('Klanın adı:'); if (!name || name.trim().length < 2) return;
+  const on = prompt('Klan sahibinin istifadəçi adı:'); if (!on) return;
+  try {
+    const u = await findUser(on);
+    if (!u) return toast('Belə istifadəçi tapılmadı. Əvvəl sayta daxil olmalıdır.');
+    await addDoc(collection(db,'clans'), {
+      name: name.trim(), ownerUid: u.uid, ownerName: u.name, members: [u.uid], createdAt: serverTimestamp()
+    });
+    toast('Klan yaradıldı');
+  } catch (ex) { toast('Klan yaradılmadı. Qaydaları yoxla.'); }
+}
+async function addMember(){
+  const clan = CLANS.find(c => 'clan-'+c.id === currentRoom); if (!clan) return;
+  const n = prompt('Əlavə ediləcək istifadəçi adı:'); if (!n) return;
+  try {
+    const u = await findUser(n);
+    if (!u) return toast('İstifadəçi tapılmadı.');
+    if (clan.members.includes(u.uid)) return toast('Artıq klandadır.');
+    await updateDoc(doc(db,'clans',clan.id), { members: arrayUnion(u.uid) });
+    toast(u.name + ' əlavə olundu');
+  } catch (ex) { toast('Əlavə etmək alınmadı.'); }
+}
+function renderClans(){
+  const grid = $('grid'); grid.innerHTML='';
+  const me = auth.currentUser?.uid;
+  if (isAdmin()) {
+    const a = document.createElement('button'); a.type='button'; a.className='card';
+    a.innerHTML = `<div class="card-art"><div class="plate">${svg('plus')}</div></div><div class="card-bot"><div class="card-name">Yeni klan yarat</div></div>`;
+    a.onclick = createClan; grid.appendChild(a);
+  }
+  CLANS.forEach((c,i) => {
+    const b = document.createElement('button'); b.type='button'; b.className='card';
+    b.style.animationDelay = (i*45)+'ms';
+    b.innerHTML = `<div class="card-top"><span class="card-no">${pad(i+1)}</span><span class="card-tag"></span></div>
+      <div class="card-art"><div class="plate">${svg('shield')}</div></div>
+      <div class="card-bot"><div><div class="card-name"></div><div class="card-sub"></div></div>
+      <span class="go"><svg class="em" viewBox="0 0 64 64"><path d="M10 32h44M36 14l18 18-18 18"/></svg></span></div>`;
+    b.querySelector('.card-tag').textContent = c.members.length + ' nəfər';
+    b.querySelector('.card-name').textContent = c.name;
+    b.querySelector('.card-sub').textContent = 'Sahib: ' + c.ownerName;
+    b.onclick = () => (c.members.includes(me) || isAdmin())
+      ? (location.hash = '#/chat/clan-'+c.id)
+      : toast('Bu klana yalnız üzvlər girə bilər. Klan sahibinə yaz.');
+    grid.appendChild(b);
+  });
+  if (!CLANS.length && !isAdmin()) grid.innerHTML = '<div class="cempty"><b>Hələ klan yoxdur</b>Klan istəyirsənsə admin-ə yaz.</div>';
+}
+$('addMember').onclick = addMember;
+
 /* ============ Çat ============ */
 let unsub = null, currentRoom = null, lastSend = 0;
 function openChat(id){
-  const g = gameById(id);
+  const isClan = id.startsWith('clan-');
+  const clan = isClan ? CLANS.find(c => 'clan-'+c.id === id) : null;
+  if (isClan && !clan) return; /* klanlar yüklənəndə route() yenidən çağırılır */
+  if (clan && !clan.members.includes(auth.currentUser.uid) && !isAdmin()) { location.hash = ''; return; }
+  const g = clan ? { id, name:clan.name, em:'shield' } : gameById(id);
   if (!g) { location.hash = ''; return; }
   currentRoom = id;
   $('app').classList.add('in-chat');
   $('home').classList.add('hidden');
   $('chat').classList.remove('hidden');
   $('chTitle').textContent = g.name;
+  $('chSub').textContent = clan ? `Klan çatı · ${clan.members.length} nəfər` : 'Canlı çat otağı';
+  $('addMember').classList.toggle('show', !!clan && clan.ownerUid === auth.currentUser.uid);
   fillPlate($('chPlate'), g);
   renderRail(id);
   const inner = $('msgsInner');
@@ -579,6 +664,7 @@ function openChat(id){
 function closeChat(){
   if (unsub) { unsub(); unsub=null; }
   currentRoom = null;
+  $('addMember').classList.remove('show');
   $('app').classList.remove('in-chat');
   $('chat').classList.add('hidden');
   $('home').classList.remove('hidden');
@@ -660,11 +746,15 @@ function showApp(user){
   $('meName').textContent = name;
   setAvatar($('meAvatar'), name, user.uid);
   setAvatar($('meAvatar2'), name, user.uid);
-  renderStats(); renderCats(); renderGames(); route();
+  setDoc(doc(db,'users',user.uid), { name, nameLower:name.toLowerCase() }, { merge:true }).catch(()=>{});
+  renderStats(); renderCats(); renderGames();
+  startClans();
+  route();
 }
 onAuthStateChanged(auth, user => {
   if (user) { showApp(user); }
   else {
+    if (clansUnsub) { clansUnsub(); clansUnsub = null; CLANS = []; }
     closeChat();
     $('boot').classList.add('hidden');
     $('app').classList.add('hidden');
